@@ -1,0 +1,136 @@
+╔══════════════════════════════════════════════════════════════════╗
+║          HOW TO OPEN & RUN IN PYCHARM — STEP BY STEP           ║
+╚══════════════════════════════════════════════════════════════════╝
+
+─────────────────────────────────────────
+ STEP 1: OPEN PROJECT IN PYCHARM
+─────────────────────────────────────────
+1. Open PyCharm
+2. Click  File → Open
+3. Browse to the "artexhibit" folder (the one with manage.py)
+4. Click OK / Open
+5. Wait for PyCharm to index the project
+
+
+─────────────────────────────────────────
+ STEP 2: SET UP PYTHON INTERPRETER
+─────────────────────────────────────────
+1. Go to  File → Settings  (Windows)
+         PyCharm → Preferences  (Mac)
+2. Navigate to: Project: artexhibit → Python Interpreter
+3. Click the gear icon ⚙ → Add
+4. Choose "Virtualenv Environment" → New environment
+5. Click OK
+6. PyCharm will create a venv folder automatically
+
+
+─────────────────────────────────────────
+ STEP 3: INSTALL PACKAGES
+─────────────────────────────────────────
+Open the Terminal tab at the bottom of PyCharm and run:
+
+    pip install -r requirements.txt
+
+Wait for Django, Pillow, and anthropic to install.
+
+
+─────────────────────────────────────────
+ STEP 4: RUN DATABASE SETUP
+─────────────────────────────────────────
+In the Terminal tab, run these commands one by one:
+
+    python manage.py migrate
+    python manage.py seed_data
+
+This creates the SQLite database and loads sample data.
+
+
+─────────────────────────────────────────
+ STEP 5: ADD YOUR ANTHROPIC API KEY (for AI)
+─────────────────────────────────────────
+Open:  artexhibit/settings.py
+
+Find this line (near the bottom):
+    ANTHROPIC_API_KEY = 'your-anthropic-api-key-here'
+
+Replace with your real key:
+    ANTHROPIC_API_KEY = 'sk-ant-api03-...'
+
+Get a key free at: https://console.anthropic.com
+
+
+─────────────────────────────────────────
+ STEP 6: CONFIGURE DJANGO IN PYCHARM
+─────────────────────────────────────────
+1. Go to  File → Settings → Languages & Frameworks → Django
+2. Check ✅ "Enable Django Support"
+3. Set Django project root: browse to the artexhibit folder
+4. Set Settings file: artexhibit/settings.py
+5. Set Manage script: manage.py
+6. Click OK
+
+
+─────────────────────────────────────────
+ STEP 7: RUN THE SERVER
+─────────────────────────────────────────
+
+OPTION A — Terminal (easiest):
+    python manage.py runserver
+
+OPTION B — PyCharm Run Config:
+1. Click  Run → Edit Configurations
+2. Click + → Django Server
+3. Name it "ArtExhibit"
+4. Host: 127.0.0.1  Port: 8000
+5. Click OK
+6. Press the ▶ Green Run button
+
+
+─────────────────────────────────────────
+ STEP 8: OPEN IN BROWSER
+─────────────────────────────────────────
+  Website:  http://127.0.0.1:8000
+  Admin:    http://127.0.0.1:8000/admin
+  Username: admin
+  Password: admin123
+
+
+─────────────────────────────────────────
+ UPLOADING REAL ARTWORK IMAGES
+─────────────────────────────────────────
+1. Go to http://127.0.0.1:8000/admin
+2. Click "Artworks" → click any artwork
+3. Upload an image file in the Image field
+4. Save — the image appears on the website instantly!
+
+
+─────────────────────────────────────────
+ WEBSITE PAGES
+─────────────────────────────────────────
+  /                  → Homepage (hero, gallery, AI recommender)
+  /gallery/          → Full gallery with search & filters
+  /artwork/1/        → Single artwork + AI analysis + comments
+  /artists/          → All artist profiles
+  /artist/1/         → Artist portfolio page
+  /exhibitions/      → All exhibitions
+  /contact/          → Contact form
+  /login/            → Sign in
+  /register/         → Create account
+  /admin/            → Django admin panel
+
+
+─────────────────────────────────────────
+ AI FEATURES (require API key)
+─────────────────────────────────────────
+  ✦ ARIA Chat       — Floating AI assistant on every page
+  ✦ AI Analysis     — Click "Generate" on any artwork page
+  ✦ Recommender     — Describe your taste on homepage
+
+
+─────────────────────────────────────────
+ QUICK WINDOWS SHORTCUT
+─────────────────────────────────────────
+Double-click:  SETUP_AND_RUN_WINDOWS.bat
+This installs everything and starts the server automatically!
+
+══════════════════════════════════════════════════════════════════
