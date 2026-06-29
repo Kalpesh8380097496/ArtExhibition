@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ArtExhibit — A World of Art{% endblock %}</title>
+    {% load static %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #F5F0E8;
+            --charcoal: #1A1A1A;
+            --gold: #C9A84C;
+            --gold-light: #E8D5A3;
+            --rust: #B5522A;
+            --sage: #6B7C5C;
+            --dusty-rose: #C4857A;
+            --ink: #2C2416;
+            --mist: #E8E4DC;
+            --white: #FAFAF8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--cream);
+            color: var(--charcoal);
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            overflow-x: hidden;
+        }
+
+        /* NAV */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 1000;
+            background: rgba(245,240,232,0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(201,168,76,0.2);
+            padding: 0 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+        }
+
+        .nav-logo {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.8rem;
+            color: var(--charcoal);
+            text-decoration: none;
+            letter-spacing: 0.1em;
+        }
+
+        .nav-logo span { color: var(--gold); }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--charcoal);
+            font-size: 0.85rem;
+            font-weight: 400;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -3px; left: 0; right: 0;
+            height: 1px;
+            background: var(--gold);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .nav-links a:hover { color: var(--gold); }
+        .nav-links a:hover::after { transform: scaleX(1); }
+
+        .nav-cta {
+            background: var(--charcoal);
+            color: var(--cream) !important;
+            padding: 0.5rem 1.4rem;
+            border-radius: 2px;
+        }
+        .nav-cta::after { display: none !important; }
+        .nav-cta:hover { background: var(--gold) !important; color: var(--charcoal) !important; }
+
+        /* PAGE WRAPPER */
+        .page-content { padding-top: 70px; min-height: 100vh; }
+
+        /* SECTION HEADERS */
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-eyebrow {
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 0.75rem;
+        }
+
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 300;
+            color: var(--charcoal);
+            line-height: 1.1;
+        }
+
+        /* BUTTONS */
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            font-size: 0.8rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-primary {
+            background: var(--charcoal);
+            color: var(--cream);
+        }
+        .btn-primary:hover { background: var(--gold); color: var(--charcoal); }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--charcoal);
+            border: 1px solid var(--charcoal);
+        }
+        .btn-outline:hover { background: var(--charcoal); color: var(--cream); }
+
+        .btn-gold {
+            background: var(--gold);
+            color: var(--charcoal);
+        }
+        .btn-gold:hover { background: var(--charcoal); color: var(--cream); }
+
+        /* ARTWORK CARDS */
+        .artwork-card {
+            position: relative;
+            overflow: hidden;
+            background: var(--white);
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .artwork-card:hover { transform: translateY(-6px); }
+
+        .artwork-card-img {
+            width: 100%;
+            aspect-ratio: 4/3;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.6s;
+            background: var(--mist);
+        }
+
+        .artwork-card:hover .artwork-card-img { transform: scale(1.04); }
+
+        .artwork-card-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(26,26,26,0.85) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.4s;
+            display: flex;
+            align-items: flex-end;
+            padding: 1.5rem;
+        }
+
+        .artwork-card:hover .artwork-card-overlay { opacity: 1; }
+
+        .artwork-card-info { padding: 1.2rem; }
+        .artwork-card-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--charcoal);
+        }
+        .artwork-card-artist {
+            font-size: 0.8rem;
+            color: var(--gold);
+            letter-spacing: 0.05em;
+            margin-top: 0.2rem;
+        }
+        .artwork-card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        /* GRID LAYOUTS */
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+
+        @media (max-width: 900px) {
+            .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); }
+            nav { padding: 0 1.5rem; }
+            .nav-links { gap: 1.5rem; }
+        }
+        @media (max-width: 600px) {
+            .grid-3, .grid-4, .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        /* SECTION PADDING */
+        .section { padding: 6rem 4rem; }
+        .section-sm { padding: 4rem 4rem; }
+        @media (max-width: 768px) {
+            .section, .section-sm { padding: 4rem 1.5rem; }
+        }
+
+        /* MESSAGES */
+        .messages { position: fixed; top: 80px; right: 1rem; z-index: 2000; }
+        .message {
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid;
+            background: var(--white);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            animation: slideIn 0.3s ease;
+        }
+        .message.success { border-color: var(--sage); }
+        .message.error { border-color: var(--rust); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* FOOTER */
+        footer {
+            background: var(--charcoal);
+            color: var(--cream);
+            padding: 4rem;
+        }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+        .footer-logo { font-family: 'Bebas Neue', cursive; font-size: 2rem; letter-spacing: 0.1em; margin-bottom: 1rem; }
+        .footer-logo span { color: var(--gold); }
+        .footer-desc { font-size: 0.85rem; line-height: 1.8; color: #aaa; }
+        .footer-col-title { font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.2rem; }
+        .footer-links { list-style: none; }
+        .footer-links li { margin-bottom: 0.6rem; }
+        .footer-links a { text-decoration: none; color: #aaa; font-size: 0.85rem; transition: color 0.3s; }
+        .footer-links a:hover { color: var(--gold); }
+        .footer-bottom { border-top: 1px solid #333; padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #666; }
+        @media (max-width: 768px) { .footer-grid { grid-template-columns: 1fr 1fr; } footer { padding: 3rem 1.5rem; } }
+
+        /* PLACEHOLDER IMAGE */
+        .img-placeholder {
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: linear-gradient(135deg, var(--mist) 0%, var(--gold-light) 50%, var(--mist) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            color: var(--gold);
+            letter-spacing: 0.1em;
+        }
+
+        /* AI CHAT WIDGET */
+        #ai-chat-widget {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 9999;
+        }
+
+        #chat-toggle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--charcoal);
+            border: 2px solid var(--gold);
+            color: var(--cream);
+            font-size: 1.4rem;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #chat-toggle:hover { background: var(--gold); transform: scale(1.1); }
+
+        #chat-panel {
+            display: none;
+            position: absolute;
+            bottom: 75px;
+            right: 0;
+            width: 360px;
+            background: var(--white);
+            border: 1px solid var(--gold-light);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            border-radius: 4px;
+            overflow: hidden;
+            flex-direction: column;
+        }
+
+        #chat-panel.open { display: flex; }
+
+        .chat-header {
+            background: var(--charcoal);
+            color: var(--cream);
+            padding: 1rem 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .chat-avatar {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: var(--gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .chat-name { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; }
+        .chat-status { font-size: 0.7rem; color: #8BC34A; }
+
+        #chat-messages {
+            flex: 1;
+            height: 300px;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .chat-msg {
+            max-width: 85%;
+            padding: 0.7rem 1rem;
+            border-radius: 2px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .chat-msg.bot {
+            background: var(--mist);
+            align-self: flex-start;
+            border-left: 2px solid var(--gold);
+        }
+
+        .chat-msg.user {
+            background: var(--charcoal);
+            color: var(--cream);
+            align-self: flex-end;
+        }
+
+        .chat-input-area {
+            padding: 0.8rem;
+            border-top: 1px solid var(--mist);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        #chat-input {
+            flex: 1;
+            padding: 0.6rem 0.9rem;
+            border: 1px solid var(--mist);
+            background: var(--cream);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        #chat-input:focus { border-color: var(--gold); }
+
+        #chat-send {
+            padding: 0.6rem 1rem;
+            background: var(--gold);
+            border: none;
+            color: var(--charcoal);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+        #chat-send:hover { background: var(--charcoal); color: var(--cream); }
+
+        /* Form styles */
+        .form-group { margin-bottom: 1.5rem; }
+        .form-label { display: block; font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem; color: var(--charcoal); }
+        .form-input {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            border: 1px solid #ddd;
+            background: var(--white);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .form-input:focus { border-color: var(--gold); }
+        textarea.form-input { resize: vertical; min-height: 120px; }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<nav>
+    <a href="{% url 'home' %}" class="nav-logo">Art<span>Exhibit</span></a>
+    <ul class="nav-links">
+        <li><a href="{% url 'gallery' %}">Gallery</a></li>
+        <li><a href="{% url 'artists' %}">Artists</a></li>
+        <li><a href="{% url 'exhibitions' %}">Exhibitions</a></li>
+        <li><a href="{% url 'contact' %}">Contact</a></li>
+        {% if user.is_authenticated %}
+            <li><a href="{% url 'cart_view' %}">🛒 Cart</a></li>
+            <li><a href="{% url 'my_orders' %}">Orders</a></li>
+            <li><a href="/admin/" style="color:var(--gold)">Dashboard</a></li>
+            <li><a href="{% url 'logout' %}" class="nav-cta">Logout</a></li>
+        {% else %}
+            <li><a href="{% url 'login' %}">Sign In</a></li>
+            <li><a href="{% url 'register' %}" class="nav-cta">Join</a></li>
+        {% endif %}
+    </ul>
+</nav>
+
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="message {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="page-content">
+    {% block content %}{% endblock %}
+</div>
+
+<footer>
+    <div class="footer-grid">
+        <div>
+            <div class="footer-logo">Art<span>Exhibit</span></div>
+            <p class="footer-desc">A premier online platform celebrating contemporary art and artists from around the world. Discover, explore, and collect exceptional artworks.</p>
+        </div>
+        <div>
+            <p class="footer-col-title">Explore</p>
+            <ul class="footer-links">
+                <li><a href="{% url 'gallery' %}">Gallery</a></li>
+                <li><a href="{% url 'artists' %}">Artists</a></li>
+                <li><a href="{% url 'exhibitions' %}">Exhibitions</a></li>
+            </ul>
+        </div>
+        <div>
+            <p class="footer-col-title">Account</p>
+            <ul class="footer-links">
+                {% if user.is_authenticated %}
+                <li><a href="/admin/">Dashboard</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+                {% else %}
+                <li><a href="{% url 'login' %}">Sign In</a></li>
+                <li><a href="{% url 'register' %}">Register</a></li>
+                {% endif %}
+            </ul>
+        </div>
+        <div>
+            <p class="footer-col-title">Connect</p>
+            <ul class="footer-links">
+                <li><a href="{% url 'contact' %}">Contact Us</a></li>
+                <li><a href="#">Instagram</a></li>
+                <li><a href="#">Twitter</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <span>© 2024 ArtExhibit. All rights reserved.</span>
+        <span>Powered by AI · Built with Django</span>
+    </div>
+</footer>
+
+<!-- AI Chat Widget -->
+<div id="ai-chat-widget">
+    <div id="chat-panel" class="open">
+        <div class="chat-header">
+            <div class="chat-avatar">✦</div>
+            <div>
+                <div class="chat-name">ARIA</div>
+                <div class="chat-status">● AI Art Assistant Online</div>
+            </div>
+        </div>
+        <div id="chat-messages">
+            <div class="chat-msg bot">Welcome to ArtExhibit. I'm ARIA, your AI art guide. Ask me about artworks, artists, exhibitions, or art history!</div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Ask about art..." />
+            <button id="chat-send">➤</button>
+        </div>
+    </div>
+    <button id="chat-toggle" onclick="toggleChat()">✦</button>
+</div>
+
+<script>
+// Auto-hide messages
+setTimeout(() => {
+    document.querySelectorAll('.message').forEach(m => m.style.opacity = '0');
+}, 4000);
+
+// AI Chat
+let chatHistory = [];
+let chatOpen = true;
+
+function toggleChat() {
+    chatOpen = !chatOpen;
+    document.getElementById('chat-panel').classList.toggle('open', chatOpen);
+    document.getElementById('chat-toggle').textContent = chatOpen ? '✕' : '✦';
+}
+
+document.getElementById('chat-send').addEventListener('click', sendChat);
+document.getElementById('chat-input').addEventListener('keypress', e => {
+    if (e.key === 'Enter') sendChat();
+});
+
+
+    let isSending = false;
+
+async function sendChat() {
+    if (isSending) return;
+
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    isSending = true;
+    input.value = '';
+    input.disabled = true;
+    document.getElementById('chat-send').disabled = true;
+
+    const msgs = document.getElementById('chat-messages');
+    msgs.innerHTML += `<div class="chat-msg user">${msg}</div>`;
+
+    const typingId = 'typing_' + Date.now();
+    msgs.innerHTML += `<div class="chat-msg bot" id="${typingId}">✦ thinking...</div>`;
+    msgs.scrollTop = msgs.scrollHeight;
+
+    chatHistory.push({ role: 'user', content: msg });
+
+    try {
+        const res = await fetch('/api/ai-chat/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                message: msg,
+                history: chatHistory.slice(-6)
+            })
+        });
+        const data = await res.json();
+        const el = document.getElementById(typingId);
+        if (el) el.textContent = data.response;
+        chatHistory.push({ role: 'assistant', content: data.response });
+    } catch (err) {
+        const el = document.getElementById(typingId);
+        if (el) el.textContent = 'Sorry, connection error. Please try again.';
+    }
+
+    msgs.scrollTop = msgs.scrollHeight;
+    isSending = false;
+    input.disabled = false;
+    document.getElementById('chat-send').disabled = false;
+    input.focus();
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>
