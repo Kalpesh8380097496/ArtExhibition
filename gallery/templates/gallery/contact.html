@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Contact — ArtExhibit{% endblock %}
+{% block extra_css %}
+<style>
+.contact-layout { display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 70px); }
+.contact-left { background: var(--charcoal); padding: 5rem 4rem; display: flex; flex-direction: column; justify-content: center; }
+.contact-right { padding: 5rem 4rem; background: var(--cream); }
+.contact-title { font-family: 'Cormorant Garamond', serif; font-size: 3.5rem; font-weight: 300; color: var(--cream); margin-bottom: 1.5rem; }
+.contact-info { margin-top: 3rem; }
+.contact-info-item { display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: flex-start; }
+.contact-info-icon { color: var(--gold); font-size: 1.2rem; margin-top: 0.2rem; }
+.contact-info-label { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: #888; margin-bottom: 0.3rem; }
+.contact-info-value { color: #ccc; font-size: 0.9rem; }
+@media (max-width: 768px) { .contact-layout { grid-template-columns: 1fr; } .contact-left, .contact-right { padding: 3rem 1.5rem; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="contact-layout">
+    <div class="contact-left">
+        <p style="font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;">Get in Touch</p>
+        <h1 class="contact-title">Let's Talk<br>About Art</h1>
+        <p style="color:#aaa;line-height:1.8;font-size:0.95rem;">Whether you're an artist wanting to exhibit, a collector seeking a piece, or simply a passionate art lover — we'd love to hear from you.</p>
+        <div class="contact-info">
+            <div class="contact-info-item"><span class="contact-info-icon">✉</span><div><div class="contact-info-label">Email</div><div class="contact-info-value">hello@artexhibit.com</div></div></div>
+            <div class="contact-info-item"><span class="contact-info-icon">◎</span><div><div class="contact-info-label">Location</div><div class="contact-info-value">Mumbai, India</div></div></div>
+            <div class="contact-info-item"><span class="contact-info-icon">✦</span><div><div class="contact-info-label">AI Assistant</div><div class="contact-info-value">Chat with ARIA — always available</div></div></div>
+        </div>
+    </div>
+    <div class="contact-right">
+        <p style="font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:2rem;">Send a Message</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group"><label class="form-label">Your Name</label><input type="text" name="name" class="form-input" required placeholder="Full name"></div>
+            <div class="form-group"><label class="form-label">Email Address</label><input type="email" name="email" class="form-input" required placeholder="your@email.com"></div>
+            <div class="form-group"><label class="form-label">Subject</label><input type="text" name="subject" class="form-input" required placeholder="What's this about?"></div>
+            <div class="form-group"><label class="form-label">Message</label><textarea name="message" class="form-input" required placeholder="Tell us more..."></textarea></div>
+            <button type="submit" class="btn btn-primary" style="width:100%;padding:1rem;">Send Message ✦</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

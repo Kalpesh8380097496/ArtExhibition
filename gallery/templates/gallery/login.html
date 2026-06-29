@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Sign In — ArtExhibit{% endblock %}
+{% block extra_css %}
+<style>
+.auth-layout { display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 70px); }
+.auth-visual { background: var(--charcoal); display: flex; align-items: center; justify-content: center; padding: 4rem; position: relative; overflow: hidden; }
+.auth-visual-bg { position: absolute; inset: 0; background: linear-gradient(135deg, #1A1A1A 0%, #2C2416 50%, #1A1A1A 100%); }
+.auth-visual-content { position: relative; z-index: 1; text-align: center; }
+.auth-visual-logo { font-family: 'Bebas Neue', cursive; font-size: 4rem; letter-spacing: 0.1em; color: var(--cream); }
+.auth-visual-logo span { color: var(--gold); }
+.auth-visual-quote { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 300; font-style: italic; color: #aaa; margin-top: 1.5rem; line-height: 1.6; max-width: 300px; }
+.auth-form-area { background: var(--cream); display: flex; align-items: center; justify-content: center; padding: 4rem; }
+.auth-form-box { width: 100%; max-width: 380px; }
+.auth-title { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 300; margin-bottom: 0.5rem; }
+.auth-subtitle { font-size: 0.85rem; color: #999; margin-bottom: 2.5rem; }
+.auth-link { text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: #999; }
+.auth-link a { color: var(--gold); text-decoration: none; }
+.gold-orb { position: absolute; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(201,168,76,0.15) 0%, transparent 70%); }
+@media (max-width: 768px) { .auth-layout { grid-template-columns: 1fr; } .auth-visual { display: none; } .auth-form-area { padding: 3rem 1.5rem; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="auth-layout">
+    <div class="auth-visual">
+        <div class="auth-visual-bg"></div>
+        <div class="gold-orb" style="top:-100px;left:-100px;"></div>
+        <div class="gold-orb" style="bottom:-100px;right:-100px;"></div>
+        <div class="auth-visual-content">
+            <div class="auth-visual-logo">Art<span>Exhibit</span></div>
+            <p class="auth-visual-quote">"Art enables us to find ourselves and lose ourselves at the same time."</p>
+            <p style="font-size:0.72rem;letter-spacing:0.1em;color:#666;margin-top:1rem;">— Thomas Merton</p>
+        </div>
+    </div>
+    <div class="auth-form-area">
+        <div class="auth-form-box">
+            <h1 class="auth-title">Welcome back</h1>
+            <p class="auth-subtitle">Sign in to continue your art journey</p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group"><label class="form-label">Username</label><input type="text" name="username" class="form-input" required autofocus placeholder="Your username"></div>
+                <div class="form-group"><label class="form-label">Password</label><input type="password" name="password" class="form-input" required placeholder="Your password"></div>
+                <button type="submit" class="btn btn-primary" style="width:100%;padding:1rem;">Sign In</button>
+            </form>
+            <div class="auth-link"><p>Don't have an account? <a href="{% url 'register' %}">Join ArtExhibit</a></p></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

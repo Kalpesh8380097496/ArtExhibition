@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}My Orders — ArtExhibit{% endblock %}
+{% block content %}
+<div style="background:var(--charcoal);padding:4rem 4rem 2rem;color:var(--cream);">
+    <p style="font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:0.5rem;">Purchase History</p>
+    <h1 style="font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:300;">My Orders</h1>
+</div>
+<div style="padding:3rem 4rem;max-width:900px;margin:0 auto;">
+    {% for order in orders %}
+    <div style="background:var(--white);padding:1.5rem;margin-bottom:1.5rem;border-left:3px solid {% if order.status == 'delivered' %}var(--sage){% elif order.status == 'cancelled' %}var(--rust){% else %}var(--gold){% endif %};">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+            <div>
+                <span style="font-size:0.72rem;color:#999;letter-spacing:0.1em;text-transform:uppercase;">Order</span>
+                <span style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;margin-left:0.5rem;">#{{ order.pk }}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:1rem;">
+                <span style="font-size:0.75rem;color:#bbb;">{{ order.created_at|date:"M d, Y" }}</span>
+                <span style="font-size:0.7rem;padding:0.2rem 0.6rem;letter-spacing:0.08em;text-transform:uppercase;background:{% if order.status == 'delivered' %}rgba(107,124,92,0.15){% elif order.status == 'cancelled' %}rgba(181,82,42,0.15){% else %}rgba(201,168,76,0.15){% endif %};color:{% if order.status == 'delivered' %}var(--sage){% elif order.status == 'cancelled' %}var(--rust){% else %}var(--gold){% endif %};">{{ order.get_status_display }}</span>
+            </div>
+        </div>
+        {% for item in order.items.all %}
+        <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--mist);font-size:0.85rem;">
+            <span><strong>{{ item.artwork_title }}</strong> <span style="color:#999;">by {{ item.artist_name }}</span></span>
+            <span style="color:var(--gold);font-weight:500;">₹{{ item.price }}</span>
+        </div>
+        {% endfor %}
+        <div style="display:flex;justify-content:space-between;margin-top:0.8rem;">
+            <span style="font-size:0.78rem;color:#999;">{{ order.payment_method|upper }} · {{ order.city }}</span>
+            <span style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;">Total: ₹{{ order.total_amount }}</span>
+        </div>
+    </div>
+    {% empty %}
+    <div style="text-align:center;padding:5rem 2rem;color:#bbb;">
+        <div style="font-size:3rem;margin-bottom:1rem;">📦</div>
+        <h2 style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;margin-bottom:1rem;">No orders yet</h2>
+        <a href="{% url 'gallery' %}" class="btn btn-gold" style="display:inline-block;">Start Shopping</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

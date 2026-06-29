@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}Checkout — ArtExhibit{% endblock %}
+{% block extra_css %}
+<style>
+.checkout-layout { display: grid; grid-template-columns: 1fr 380px; gap: 2rem; padding: 3rem 4rem; max-width: 1200px; margin: 0 auto; }
+.checkout-header { background: var(--charcoal); padding: 4rem 4rem 2rem; color: var(--cream); }
+.checkout-header h1 { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 300; }
+.checkout-card { background: var(--white); padding: 2rem; margin-bottom: 1.5rem; }
+.checkout-section-title { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--mist); display: flex; align-items: center; gap: 0.5rem; }
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+.payment-option { border: 1px solid var(--mist); padding: 1rem; cursor: pointer; transition: border-color 0.3s; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 1rem; }
+.payment-option:hover { border-color: var(--gold); }
+.payment-option input[type=radio] { accent-color: var(--gold); }
+.payment-icon { font-size: 1.5rem; }
+.payment-label { font-size: 0.88rem; font-weight: 500; }
+.payment-desc { font-size: 0.75rem; color: #999; }
+.order-summary { background: var(--white); padding: 1.5rem; position: sticky; top: 90px; }
+.summary-title { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--mist); }
+.summary-item { display: flex; gap: 0.8rem; margin-bottom: 0.8rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--mist); align-items: center; }
+.summary-item-img { width: 50px; height: 40px; object-fit: cover; background: var(--mist); display: flex; align-items: center; justify-content: center; font-size: 1rem; color: var(--gold); flex-shrink: 0; }
+.summary-item-title { font-size: 0.82rem; font-weight: 500; }
+.summary-item-price { font-size: 0.82rem; color: var(--gold); margin-left: auto; flex-shrink: 0; }
+.summary-total { display: flex; justify-content: space-between; font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; padding-top: 0.8rem; }
+@media (max-width: 900px) { .checkout-layout { grid-template-columns: 1fr; padding: 2rem 1.5rem; } .checkout-header { padding: 3rem 1.5rem 1.5rem; } .form-row-2, .form-row-3 { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="checkout-header">
+    <p style="font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:0.5rem;">Final Step</p>
+    <h1>Checkout</h1>
+</div>
+
+<form method="post" action="{% url 'checkout' %}">
+{% csrf_token %}
+<div class="checkout-layout">
+    <div>
+        <!-- Delivery Info -->
+        <div class="checkout-card">
+            <div class="checkout-section-title">📦 Delivery Information</div>
+            <div class="form-group"><label class="form-label">Full Name *</label><input type="text" name="full_name" class="form-input" required value="{{ user.get_full_name }}" placeholder="Your full name"></div>
+            <div class="form-row-2">
+                <div class="form-group"><label class="form-label">Email *</label><input type="email" name="email" class="form-input" required value="{{ user.email }}" placeholder="your@email.com"></div>
+                <div class="form-group"><label class="form-label">Phone *</label><input type="tel" name="phone" class="form-input" required placeholder="10-digit mobile number"></div>
+            </div>
+            <div class="form-group"><label class="form-label">Address *</label><textarea name="address" class="form-input" required placeholder="House/Flat No., Street, Area..." style="min-height:80px;"></textarea></div>
+            <div class="form-row-3">
+                <div class="form-group"><label class="form-label">City *</label><input type="text" name="city" class="form-input" required placeholder="Mumbai"></div>
+                <div class="form-group"><label class="form-label">State *</label><input type="text" name="state" class="form-input" required placeholder="Maharashtra"></div>
+                <div class="form-group"><label class="form-label">Pincode *</label><input type="text" name="pincode" class="form-input" required placeholder="400001" maxlength="6"></div>
+            </div>
+            <div class="form-group"><label class="form-label">Special Instructions</label><textarea name="notes" class="form-input" placeholder="Any special packaging or delivery instructions..."></textarea></div>
+        </div>
+
+        <!-- Payment -->
+        <div class="checkout-card">
+            <div class="checkout-section-title">💳 Payment Method</div>
+            <label class="payment-option">
+                <input type="radio" name="payment_method" value="cod" checked>
+                <span class="payment-icon">💵</span>
+                <div><div class="payment-label">Cash on Delivery</div><div class="payment-desc">Pay when your artwork arrives</div></div>
+            </label>
+            <label class="payment-option">
+                <input type="radio" name="payment_method" value="upi">
+                <span class="payment-icon">📱</span>
+                <div><div class="payment-label">UPI Payment</div><div class="payment-desc">Google Pay, PhonePe, Paytm</div></div>
+            </label>
+            <label class="payment-option">
+                <input type="radio" name="payment_method" value="bank">
+                <span class="payment-icon">🏦</span>
+                <div><div class="payment-label">Bank Transfer</div><div class="payment-desc">Direct bank transfer / NEFT</div></div>
+            </label>
+            <label class="payment-option">
+                <input type="radio" name="payment_method" value="card">
+                <span class="payment-icon">💳</span>
+                <div><div class="payment-label">Credit / Debit Card</div><div class="payment-desc">Visa, Mastercard, RuPay</div></div>
+            </label>
+        </div>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="order-summary">
+        <div class="summary-title">Your Order</div>
+        {% for item in items %}
+        <div class="summary-item">
+            {% if item.artwork.image and item.artwork.image.name != 'artworks/placeholder.jpg' %}
+            <img src="{{ item.artwork.image.url }}" class="summary-item-img" style="width:50px;height:40px;object-fit:cover;">
+            {% else %}
+            <div class="summary-item-img">{{ item.artwork.title|first }}</div>
+            {% endif %}
+            <div>
+                <div class="summary-item-title">{{ item.artwork.title }}</div>
+                <div style="font-size:0.72rem;color:#999;">{{ item.artwork.artist.name }}</div>
+            </div>
+            <div class="summary-item-price">₹{{ item.artwork.price }}</div>
+        </div>
+        {% endfor %}
+
+        <div style="display:flex;justify-content:space-between;font-size:0.85rem;color:#999;margin-bottom:0.5rem;"><span>Subtotal</span><span>₹{{ total }}</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:0.85rem;color:#999;margin-bottom:0.5rem;"><span>Shipping</span><span style="color:var(--sage);">FREE</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:0.85rem;color:#999;margin-bottom:0.5rem;"><span>Insurance</span><span style="color:var(--sage);">Included</span></div>
+        <div class="summary-total"><span>Total</span><span>₹{{ total }}</span></div>
+
+        <button type="submit" class="btn btn-gold" style="width:100%;padding:1.1rem;font-size:0.95rem;margin-top:1.5rem;">Place Order ✦</button>
+        <div style="text-align:center;margin-top:1rem;">
+            <p style="font-size:0.72rem;color:#bbb;">🔒 Secure & Insured Delivery</p>
+            <p style="font-size:0.72rem;color:#bbb;margin-top:0.3rem;">📦 Carefully packaged artwork</p>
+            <p style="font-size:0.72rem;color:#bbb;margin-top:0.3rem;">↩ Easy returns within 7 days</p>
+        </div>
+    </div>
+</div>
+</form>
+{% endblock %}

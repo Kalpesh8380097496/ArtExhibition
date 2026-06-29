@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Order Placed! — ArtExhibit{% endblock %}
+{% block content %}
+<div style="min-height:calc(100vh - 70px);display:flex;align-items:center;justify-content:center;background:var(--cream);padding:2rem;">
+  <div style="text-align:center;max-width:600px;background:var(--white);padding:4rem 3rem;">
+    <div style="font-size:4rem;margin-bottom:1rem;">🎨</div>
+    <div style="display:inline-block;background:rgba(107,124,92,0.1);color:var(--sage);font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;padding:0.4rem 1rem;margin-bottom:1.5rem;">Order Confirmed</div>
+    <h1 style="font-family:'Cormorant Garamond',serif;font-size:2.8rem;font-weight:300;color:var(--charcoal);margin-bottom:0.8rem;">Thank You, {{ order.full_name }}!</h1>
+    <p style="color:#777;font-size:0.95rem;line-height:1.8;margin-bottom:2rem;">Your order has been placed successfully. Your artwork will be carefully packaged and delivered to you soon.</p>
+
+    <div style="background:var(--cream);padding:1.5rem;text-align:left;margin-bottom:2rem;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:0.8rem;">
+        <span style="font-size:0.78rem;color:#999;text-transform:uppercase;letter-spacing:0.1em;">Order Number</span>
+        <span style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;">#{{ order.pk }}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:0.8rem;">
+        <span style="font-size:0.78rem;color:#999;text-transform:uppercase;letter-spacing:0.1em;">Status</span>
+        <span style="background:rgba(107,124,92,0.15);color:var(--sage);font-size:0.72rem;padding:0.2rem 0.6rem;">{{ order.get_status_display }}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:0.8rem;">
+        <span style="font-size:0.78rem;color:#999;text-transform:uppercase;letter-spacing:0.1em;">Payment</span>
+        <span style="font-size:0.88rem;">{{ order.payment_method|upper }}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:0.8rem;">
+        <span style="font-size:0.78rem;color:#999;text-transform:uppercase;letter-spacing:0.1em;">Total</span>
+        <span style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;color:var(--gold);">₹{{ order.total_amount }}</span>
+      </div>
+      <div style="border-top:1px solid var(--mist);margin-top:0.8rem;padding-top:0.8rem;">
+        <span style="font-size:0.78rem;color:#999;text-transform:uppercase;letter-spacing:0.1em;">Deliver To</span>
+        <p style="font-size:0.85rem;color:#555;margin-top:0.3rem;">{{ order.address }}, {{ order.city }}, {{ order.state }} - {{ order.pincode }}</p>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <a href="{% url 'my_orders' %}" class="btn btn-primary">View My Orders</a>
+      <a href="{% url 'gallery' %}" class="btn btn-outline">Continue Shopping</a>
+    </div>
+
+    <p style="font-size:0.78rem;color:#bbb;margin-top:2rem;">A confirmation will be sent to {{ order.email }}</p>
+  </div>
+</div>
+{% endblock %}

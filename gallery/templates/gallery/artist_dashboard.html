@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+{% block title %}Artist Dashboard — ArtExhibit{% endblock %}
+{% block extra_css %}
+<style>
+.dash-layout { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - 70px); }
+.dash-sidebar { background: var(--charcoal); padding: 2rem 0; position: sticky; top: 70px; height: calc(100vh - 70px); overflow-y: auto; }
+.dash-sidebar-logo { padding: 0 1.5rem 1.5rem; border-bottom: 1px solid #333; margin-bottom: 1rem; }
+.artist-sidebar-name { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: var(--cream); }
+.artist-sidebar-tag { font-size: 0.7rem; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; }
+.dash-nav-item { display: flex; align-items: center; gap: 0.8rem; padding: 0.75rem 1.5rem; color: #aaa; text-decoration: none; font-size: 0.85rem; transition: all 0.2s; cursor: pointer; border: none; background: none; width: 100%; text-align: left; }
+.dash-nav-item:hover, .dash-nav-item.active { background: rgba(201,168,76,0.1); color: var(--gold); border-left: 2px solid var(--gold); }
+.dash-main { background: var(--cream); padding: 2.5rem; }
+.dash-section { display: none; }
+.dash-section.active { display: block; }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; margin-bottom: 2rem; }
+.stat-card { background: var(--white); padding: 1.2rem; border-left: 3px solid var(--gold); }
+.stat-num { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 300; line-height: 1; }
+.stat-label { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: #999; margin-top: 0.3rem; }
+.dash-card { background: var(--white); padding: 1.5rem; margin-bottom: 1.5rem; }
+.dash-card-title { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--mist); }
+.artwork-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+.artwork-manage-card { background: var(--cream); position: relative; }
+.artwork-manage-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; background: var(--mist); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: var(--gold); }
+.artwork-manage-body { padding: 0.8rem; }
+.artwork-manage-title { font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; font-weight: 600; }
+.artwork-manage-meta { font-size: 0.72rem; color: #999; margin-top: 0.2rem; }
+.artwork-manage-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+.action-btn { padding: 0.3rem 0.7rem; font-size: 0.72rem; border: 1px solid; cursor: pointer; background: none; font-family: 'DM Sans', sans-serif; transition: all 0.2s; text-decoration: none; display: inline-block; }
+.btn-danger { border-color: var(--rust); color: var(--rust); }
+.btn-danger:hover { background: var(--rust); color: white; }
+.page-title { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; margin-bottom: 0.3rem; }
+.page-sub { font-size: 0.82rem; color: #999; margin-bottom: 2rem; }
+.upload-zone { border: 2px dashed var(--gold-light); padding: 2rem; text-align: center; cursor: pointer; transition: border-color 0.3s; }
+.upload-zone:hover { border-color: var(--gold); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 768px) { .dash-layout { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: repeat(2,1fr); } .form-row { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="dash-layout">
+  <div class="dash-sidebar">
+    <div class="dash-sidebar-logo">
+      <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-light));display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--charcoal);margin-bottom:0.8rem;">{{ artist.name|first }}</div>
+      <div class="artist-sidebar-name">{{ artist.name }}</div>
+      <div class="artist-sidebar-tag">✦ Artist</div>
+    </div>
+    <button class="dash-nav-item active" onclick="showSection('overview')"><span>📊</span> Overview</button>
+    <button class="dash-nav-item" onclick="showSection('artworks')"><span>🖼</span> My Artworks</button>
+    <button class="dash-nav-item" onclick="showSection('upload')"><span>⬆</span> Upload Artwork</button>
+    <button class="dash-nav-item" onclick="showSection('profile')"><span>👤</span> Edit Profile</button>
+    <button class="dash-nav-item" onclick="showSection('comments')"><span>💬</span> Comments</button>
+    <div style="border-top:1px solid #333;margin:1rem 0;"></div>
+    <a href="{% url 'artist_detail' artist.pk %}" class="dash-nav-item"><span>👁</span> My Public Page</a>
+    <a href="{% url 'home' %}" class="dash-nav-item"><span>🌐</span> View Website</a>
+    <a href="{% url 'logout' %}" class="dash-nav-item"><span>↩</span> Logout</a>
+  </div>
+
+  <div class="dash-main">
+
+    <!-- OVERVIEW -->
+    <div id="sec-overview" class="dash-section active">
+      <h1 class="page-title">Welcome, {{ artist.name }}!</h1>
+      <p class="page-sub">Manage your artworks and track your performance.</p>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-num">{{ total_artworks }}</div><div class="stat-label">Artworks</div></div>
+        <div class="stat-card" style="border-color:#6B7C5C"><div class="stat-num">{{ total_views }}</div><div class="stat-label">Total Views</div></div>
+        <div class="stat-card" style="border-color:#C4857A"><div class="stat-num">{{ total_likes }}</div><div class="stat-label">Total Likes</div></div>
+        <div class="stat-card" style="border-color:#B5522A"><div class="stat-num">{{ total_comments }}</div><div class="stat-label">Comments</div></div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-title">Recent Artworks</div>
+        <div class="artwork-grid">
+          {% for art in artworks|slice:":6" %}
+          <div class="artwork-manage-card">
+            {% if art.image and art.image.name != 'artworks/placeholder.jpg' %}
+            <img src="{{ art.image.url }}" alt="{{ art.title }}" style="width:100%;aspect-ratio:4/3;object-fit:cover;display:block;">
+            {% else %}
+            <div style="width:100%;aspect-ratio:4/3;background:linear-gradient(135deg,var(--mist),var(--gold-light));display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--gold);">{{ art.title|first }}</div>
+            {% endif %}
+            <div class="artwork-manage-body">
+              <div class="artwork-manage-title">{{ art.title }}</div>
+              <div class="artwork-manage-meta">{{ art.get_medium_display }} · {{ art.year_created }}</div>
+              <div class="artwork-manage-meta">{{ art.view_count }} views · {{ art.like_count }} likes</div>
+              <div class="artwork-manage-actions">
+                <a href="{% url 'artwork_detail' art.pk %}" class="action-btn" style="border-color:var(--gold);color:var(--gold);">View</a>
+                <a href="{% url 'artist_delete_artwork' art.pk %}" class="action-btn btn-danger" onclick="return confirm('Delete?')">Del</a>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div style="grid-column:1/-1;text-align:center;padding:3rem;color:#bbb;">
+            <p style="font-size:1.2rem;font-family:'Cormorant Garamond',serif;">No artworks yet.</p>
+            <button class="btn btn-gold" style="margin-top:1rem;" onclick="showSection('upload')">Upload Your First Artwork</button>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- MY ARTWORKS -->
+    <div id="sec-artworks" class="dash-section">
+      <h1 class="page-title">My Artworks</h1>
+      <p class="page-sub">{{ total_artworks }} artworks in your portfolio</p>
+      <div class="artwork-grid">
+        {% for art in artworks %}
+        <div class="artwork-manage-card">
+          {% if art.image and art.image.name != 'artworks/placeholder.jpg' %}
+          <img src="{{ art.image.url }}" alt="{{ art.title }}" style="width:100%;aspect-ratio:4/3;object-fit:cover;display:block;">
+          {% else %}
+          <div style="width:100%;aspect-ratio:4/3;background:linear-gradient(135deg,var(--mist),var(--gold-light));display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--gold);">{{ art.title|first }}</div>
+          {% endif %}
+          <div class="artwork-manage-body">
+            <div class="artwork-manage-title">{{ art.title }}</div>
+            <div class="artwork-manage-meta">{{ art.get_medium_display }} · {{ art.year_created }}</div>
+            <div class="artwork-manage-meta">{{ art.view_count }} views · {{ art.like_count }} likes · {{ art.comment_count }} comments</div>
+            {% if art.is_for_sale and art.price %}<div style="font-size:0.8rem;color:var(--gold);margin-top:0.2rem;">₹{{ art.price }}</div>{% endif %}
+            <div class="artwork-manage-actions">
+              <a href="{% url 'artwork_detail' art.pk %}" class="action-btn" style="border-color:var(--gold);color:var(--gold);">View</a>
+              <a href="{% url 'artist_delete_artwork' art.pk %}" class="action-btn btn-danger" onclick="return confirm('Delete this artwork?')">Delete</a>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div style="grid-column:1/-1;text-align:center;padding:3rem;color:#bbb;"><p>No artworks yet. Upload your first one!</p></div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- UPLOAD -->
+    <div id="sec-upload" class="dash-section">
+      <h1 class="page-title">Upload Artwork</h1>
+      <p class="page-sub">Share your art with the world</p>
+      <div class="dash-card">
+        <form method="post" action="{% url 'artist_add_artwork' %}" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="form-group">
+            <label class="form-label">Artwork Image</label>
+            <div class="upload-zone" onclick="document.getElementById('img-input').click()">
+              <div style="font-size:2rem;margin-bottom:0.5rem;">🖼</div>
+              <p style="font-size:0.85rem;color:#999;">Click to upload image (JPG, PNG, WebP)</p>
+              <p id="file-name" style="font-size:0.8rem;color:var(--gold);margin-top:0.5rem;"></p>
+            </div>
+            <input type="file" id="img-input" name="image" accept="image/*" style="display:none;" onchange="document.getElementById('file-name').textContent=this.files[0].name">
+          </div>
+          <div class="form-group"><label class="form-label">Title *</label><input type="text" name="title" class="form-input" required placeholder="Name your artwork"></div>
+          <div class="form-group"><label class="form-label">Description</label><textarea name="description" class="form-input" placeholder="Describe your artwork, inspiration, technique..."></textarea></div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Medium *</label><select name="medium" class="form-input">{% for val, label in medium_choices %}<option value="{{ val }}">{{ label }}</option>{% endfor %}</select></div>
+            <div class="form-group"><label class="form-label">Year Created</label><input type="number" name="year_created" class="form-input" value="2024" min="1800" max="2030"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Category</label><select name="category" class="form-input"><option value="">— Select —</option>{% for cat in categories %}<option value="{{ cat.pk }}">{{ cat.icon }} {{ cat.name }}</option>{% endfor %}</select></div>
+            <div class="form-group"><label class="form-label">Exhibition</label><select name="exhibition" class="form-input"><option value="">— None —</option>{% for ex in exhibitions %}<option value="{{ ex.pk }}">{{ ex.title }}</option>{% endfor %}</select></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Dimensions</label><input type="text" name="dimensions" class="form-input" placeholder="e.g. 60x80 cm"></div>
+            <div class="form-group"><label class="form-label">Tags</label><input type="text" name="tags" class="form-input" placeholder="e.g. abstract, blue, nature"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Price (₹)</label><input type="number" name="price" class="form-input" placeholder="Leave blank if not for sale"></div>
+            <div class="form-group" style="display:flex;align-items:center;gap:0.5rem;margin-top:1.8rem;"><input type="checkbox" name="is_for_sale" id="for_sale"><label for="for_sale" style="font-size:0.85rem;">Available for Sale</label></div>
+          </div>
+          <button type="submit" class="btn btn-gold" style="width:100%;padding:1rem;font-size:0.95rem;">Upload Artwork ✦</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="sec-profile" class="dash-section">
+      <h1 class="page-title">Edit Profile</h1>
+      <p class="page-sub">Update your artist information</p>
+      <div class="dash-card">
+        <form method="post" action="{% url 'artist_update_profile' %}" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">First Name</label><input type="text" name="first_name" class="form-input" value="{{ request.user.first_name }}"></div>
+            <div class="form-group"><label class="form-label">Last Name</label><input type="text" name="last_name" class="form-input" value="{{ request.user.last_name }}"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Display Name</label><input type="text" name="name" class="form-input" value="{{ artist.name }}" required></div>
+          <div class="form-group"><label class="form-label">Email</label><input type="email" name="email" class="form-input" value="{{ request.user.email }}"></div>
+          <div class="form-group"><label class="form-label">Country</label><input type="text" name="country" class="form-input" value="{{ artist.country }}" placeholder="India"></div>
+          <div class="form-group"><label class="form-label">Bio</label><textarea name="bio" class="form-input" placeholder="Tell people about yourself and your art...">{{ artist.bio }}</textarea></div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Website</label><input type="url" name="website" class="form-input" value="{{ artist.website }}" placeholder="https://yourwebsite.com"></div>
+            <div class="form-group"><label class="form-label">Instagram Handle</label><input type="text" name="instagram" class="form-input" value="{{ artist.instagram }}" placeholder="username (no @)"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Profile Photo</label><input type="file" name="profile_image" class="form-input" accept="image/*"></div>
+          <button type="submit" class="btn btn-primary" style="padding:0.9rem 2rem;">Save Changes</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- COMMENTS -->
+    <div id="sec-comments" class="dash-section">
+      <h1 class="page-title">Comments on Your Work</h1>
+      <p class="page-sub">{{ total_comments }} total comments</p>
+      <div class="dash-card">
+        {% for comment in recent_comments %}
+        <div style="padding:1rem;border-bottom:1px solid var(--mist);">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.4rem;">
+            <strong style="font-size:0.85rem;">{{ comment.user.username }}</strong>
+            <span style="font-size:0.75rem;color:#bbb;">{{ comment.created_at|date:"M d, Y" }}</span>
+          </div>
+          <p style="font-size:0.82rem;color:#555;margin-bottom:0.3rem;">{{ comment.text }}</p>
+          <a href="{% url 'artwork_detail' comment.artwork.pk %}" style="font-size:0.75rem;color:var(--gold);text-decoration:none;">on "{{ comment.artwork.title }}" →</a>
+        </div>
+        {% empty %}
+        <p style="color:#bbb;text-align:center;padding:2rem;">No comments yet on your artworks.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function showSection(name) {
+    document.querySelectorAll('.dash-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.dash-nav-item').forEach(b => b.classList.remove('active'));
+    document.getElementById('sec-' + name).classList.add('active');
+    event.currentTarget.classList.add('active');
+}
+</script>
+{% endblock %}

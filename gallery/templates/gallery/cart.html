@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}My Cart — ArtExhibit{% endblock %}
+{% block extra_css %}
+<style>
+.cart-layout { display: grid; grid-template-columns: 1fr 360px; gap: 2rem; padding: 3rem 4rem; max-width: 1200px; margin: 0 auto; }
+.cart-header { background: var(--charcoal); padding: 4rem 4rem 2rem; color: var(--cream); }
+.cart-header h1 { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 300; }
+.cart-item { background: var(--white); display: grid; grid-template-columns: 120px 1fr auto; gap: 1.2rem; padding: 1.2rem; margin-bottom: 1rem; align-items: center; }
+.cart-item-img { width: 120px; height: 90px; object-fit: cover; background: var(--mist); display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--gold); }
+.cart-item-title { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 600; }
+.cart-item-artist { font-size: 0.8rem; color: #999; margin-top: 0.2rem; }
+.cart-item-price { font-size: 1.2rem; color: var(--charcoal); font-family: 'Cormorant Garamond', serif; font-weight: 600; }
+.remove-btn { background: none; border: 1px solid var(--rust); color: var(--rust); padding: 0.3rem 0.6rem; cursor: pointer; font-size: 0.75rem; transition: all 0.2s; }
+.remove-btn:hover { background: var(--rust); color: white; }
+.order-summary { background: var(--white); padding: 1.5rem; position: sticky; top: 90px; height: fit-content; }
+.summary-title { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--mist); }
+.summary-row { display: flex; justify-content: space-between; margin-bottom: 0.8rem; font-size: 0.88rem; }
+.summary-total { display: flex; justify-content: space-between; font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; padding-top: 0.8rem; border-top: 1px solid var(--mist); margin-top: 0.8rem; }
+.empty-cart { text-align: center; padding: 5rem 2rem; color: #999; grid-column: 1/-1; }
+.empty-cart h2 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; margin-bottom: 1rem; }
+@media (max-width: 768px) { .cart-layout { grid-template-columns: 1fr; padding: 2rem 1.5rem; } .cart-header { padding: 3rem 1.5rem 1.5rem; } .cart-item { grid-template-columns: 80px 1fr; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="cart-header">
+    <p style="font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:0.5rem;">Shopping</p>
+    <h1>My Cart <span style="font-size:1.5rem;color:var(--gold);">({{ items|length }})</span></h1>
+</div>
+
+<div class="cart-layout">
+    {% if items %}
+    <div>
+        {% for item in items %}
+        <div class="cart-item">
+            {% if item.artwork.image and item.artwork.image.name != 'artworks/placeholder.jpg' %}
+            <img src="{{ item.artwork.image.url }}" alt="{{ item.artwork.title }}" class="cart-item-img" style="width:120px;height:90px;object-fit:cover;">
+            {% else %}
+            <div class="cart-item-img">{{ item.artwork.title|first }}</div>
+            {% endif %}
+            <div>
+                <div class="cart-item-title">{{ item.artwork.title }}</div>
+                <div class="cart-item-artist">by {{ item.artwork.artist.name }}</div>
+                <div style="font-size:0.75rem;color:var(--gold);margin-top:0.3rem;">{{ item.artwork.get_medium_display }}</div>
+            </div>
+            <div style="text-align:right;">
+                <div class="cart-item-price">₹{{ item.artwork.price }}</div>
+                <a href="{% url 'remove_from_cart' item.pk %}" class="remove-btn" style="display:inline-block;margin-top:0.5rem;">✕ Remove</a>
+            </div>
+        </div>
+        {% endfor %}
+        <a href="{% url 'gallery' %}" style="font-size:0.82rem;color:var(--gold);text-decoration:none;">← Continue Shopping</a>
+    </div>
+
+    <div class="order-summary">
+        <div class="summary-title">Order Summary</div>
+        {% for item in items %}
+        <div class="summary-row">
+            <span>{{ item.artwork.title|truncatechars:25 }}</span>
+            <span>₹{{ item.artwork.price }}</span>
+        </div>
+        {% endfor %}
+        <div class="summary-total">
+            <span>Total</span>
+            <span>₹{{ total }}</span>
+        </div>
+        <a href="{% url 'checkout' %}" class="btn btn-gold" style="display:block;text-align:center;width:100%;margin-top:1.5rem;padding:1rem;font-size:0.9rem;">Proceed to Checkout →</a>
+        <p style="font-size:0.72rem;color:#bbb;text-align:center;margin-top:0.8rem;">🔒 Secure Checkout</p>
+    </div>
+
+    {% else %}
+    <div class="empty-cart">
+        <div style="font-size:4rem;margin-bottom:1rem;">🛒</div>
+        <h2>Your cart is empty</h2>
+        <p>Discover beautiful artworks and add them to your collection!</p>
+        <a href="{% url 'gallery' %}" class="btn btn-gold" style="display:inline-block;margin-top:1.5rem;">Browse Gallery</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

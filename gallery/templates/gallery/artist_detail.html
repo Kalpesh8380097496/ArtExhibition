@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}{{ artist.name }} — ArtExhibit{% endblock %}
+{% block extra_css %}
+<style>
+.artist-hero { background: var(--charcoal); padding: 5rem 4rem; display: grid; grid-template-columns: auto 1fr; gap: 3rem; align-items: center; }
+.artist-hero-avatar { width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg,var(--mist),var(--gold-light)); border: 3px solid var(--gold); overflow: hidden; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 5rem; color: var(--gold); flex-shrink: 0; }
+.artist-hero-name { font-family: 'Cormorant Garamond', serif; font-size: 3.5rem; font-weight: 300; color: var(--cream); }
+.artist-hero-country { color: var(--gold); font-size: 0.9rem; letter-spacing: 0.1em; margin-top: 0.3rem; }
+.artist-hero-bio { color: #aaa; font-size: 0.95rem; line-height: 1.8; margin-top: 1rem; max-width: 600px; }
+@media (max-width: 768px) { .artist-hero { grid-template-columns: 1fr; padding: 3rem 1.5rem; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="artist-hero">
+    <div class="artist-hero-avatar">
+        {% if artist.profile_image %}<img src="{{ artist.profile_image.url }}" style="width:100%;height:100%;object-fit:cover;">{% else %}{{ artist.name|first }}{% endif %}
+    </div>
+    <div>
+        <p style="font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:0.5rem;">Artist Profile</p>
+        <h1 class="artist-hero-name">{{ artist.name }}</h1>
+        <div class="artist-hero-country">{{ artist.country }}</div>
+        <p class="artist-hero-bio">{{ artist.bio }}</p>
+        <div style="display:flex;gap:1.5rem;margin-top:1.5rem;font-size:0.8rem;color:#666;">
+            {% if artist.website %}<a href="{{ artist.website }}" target="_blank" style="color:var(--gold);text-decoration:none;">Website ↗</a>{% endif %}
+            {% if artist.instagram %}<a href="https://instagram.com/{{ artist.instagram }}" target="_blank" style="color:var(--gold);text-decoration:none;">@{{ artist.instagram }}</a>{% endif %}
+        </div>
+    </div>
+</div>
+<section class="section">
+    <div class="section-header">
+        <p class="section-eyebrow">Portfolio</p>
+        <h2 class="section-title">{{ artworks|length }} Work{{ artworks|length|pluralize }}</h2>
+    </div>
+    <div class="grid-3">
+        {% for artwork in artworks %}
+        <a href="{% url 'artwork_detail' artwork.pk %}" class="artwork-card" style="text-decoration:none;color:inherit;">
+            {% if artwork.image and artwork.image.name != 'artworks/placeholder.jpg' %}
+            <img src="{{ artwork.image.url }}" alt="{{ artwork.title }}" class="artwork-card-img">
+            {% else %}
+            <div class="artwork-card-img" style="display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:4rem;color:var(--gold);opacity:0.3;">{{ artwork.title|first }}</div>
+            {% endif %}
+            <div class="artwork-card-overlay"><div><p style="font-size:0.7rem;color:var(--gold-light);margin-bottom:0.3rem;">{{ artwork.get_medium_display }}</p><p style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--cream);">{{ artwork.title }}</p></div></div>
+            <div class="artwork-card-info">
+                <div class="artwork-card-title">{{ artwork.title }}</div>
+                <div class="artwork-card-meta"><span style="color:var(--gold)">{{ artwork.get_medium_display }}</span><span>{{ artwork.year_created }}</span></div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

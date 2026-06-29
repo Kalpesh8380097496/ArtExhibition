@@ -1,0 +1,474 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ artwork.title }} — ArtExhibit{% endblock %}
+
+{% block extra_css %}
+<style>
+.artwork-layout {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    min-height: calc(100vh - 70px);
+}
+
+.artwork-main {
+    padding: 3rem 3rem 3rem 4rem;
+    background: var(--charcoal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: sticky;
+    top: 70px;
+    height: calc(100vh - 70px);
+}
+
+.artwork-image-frame {
+    position: relative;
+    max-width: 100%;
+    max-height: 80vh;
+}
+
+.artwork-image-frame img {
+    max-width: 100%;
+    max-height: 80vh;
+    object-fit: contain;
+    display: block;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+}
+
+.artwork-placeholder-large {
+    width: 500px;
+    height: 380px;
+    max-width: 90%;
+    background: linear-gradient(135deg, #2C2416, #3d3428);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 8rem;
+    color: rgba(201,168,76,0.2);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+}
+
+.artwork-sidebar {
+    background: var(--cream);
+    overflow-y: auto;
+    padding: 3rem 2.5rem;
+    border-left: 1px solid var(--mist);
+}
+
+.artwork-eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.8rem;
+}
+
+.artwork-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--charcoal);
+    margin-bottom: 0.5rem;
+}
+
+.artwork-artist {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    color: var(--gold);
+    font-style: italic;
+    margin-bottom: 2rem;
+    text-decoration: none;
+}
+.artwork-artist:hover { text-decoration: underline; }
+
+.artwork-meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--white);
+    border-left: 2px solid var(--gold);
+}
+
+.meta-item-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #999;
+    margin-bottom: 0.3rem;
+}
+
+.meta-item-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    color: var(--charcoal);
+}
+
+.artwork-desc {
+    font-size: 0.9rem;
+    line-height: 1.9;
+    color: #555;
+    margin-bottom: 2rem;
+}
+
+.divider {
+    height: 1px;
+    background: var(--mist);
+    margin: 2rem 0;
+}
+
+/* AI Analysis */
+.ai-analysis-box {
+    background: var(--charcoal);
+    color: var(--cream);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.ai-analysis-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.ai-analysis-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    color: var(--gold);
+}
+
+#ai-analysis-text {
+    font-size: 0.85rem;
+    line-height: 1.8;
+    color: #ccc;
+    display: none;
+}
+
+#ai-analysis-text.show { display: block; }
+
+.btn-ai {
+    background: var(--gold);
+    color: var(--charcoal);
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+.btn-ai:hover { background: var(--cream); }
+
+/* Like & Actions */
+.artwork-actions {
+    display: flex;
+    gap: 0.8rem;
+    margin-bottom: 2rem;
+}
+
+.like-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.2rem;
+    border: 1px solid var(--mist);
+    background: transparent;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    color: var(--charcoal);
+    transition: all 0.3s;
+}
+.like-btn:hover, .like-btn.liked {
+    background: var(--dusty-rose);
+    border-color: var(--dusty-rose);
+    color: var(--white);
+}
+
+.price-box {
+    background: var(--white);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--gold-light);
+}
+
+.price-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 300;
+    color: var(--charcoal);
+    margin-bottom: 0.5rem;
+}
+
+/* Comments */
+.comments-section { margin-top: 2rem; }
+.comment-form { margin-bottom: 1.5rem; }
+.comment-textarea {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--mist);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    resize: vertical;
+    min-height: 80px;
+    outline: none;
+    background: var(--white);
+    transition: border-color 0.3s;
+}
+.comment-textarea:focus { border-color: var(--gold); }
+
+.comment {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--mist);
+}
+.comment-header { display: flex; justify-content: space-between; margin-bottom: 0.4rem; }
+.comment-username { font-size: 0.82rem; font-weight: 500; color: var(--charcoal); }
+.comment-date { font-size: 0.75rem; color: #bbb; }
+.comment-text { font-size: 0.88rem; line-height: 1.7; color: #666; }
+
+/* Related */
+.related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+.related-item { text-decoration: none; color: inherit; display: block; transition: transform 0.3s; }
+.related-item:hover { transform: scale(1.02); }
+.related-item img, .related-placeholder { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; background: var(--mist); }
+.related-placeholder { display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: var(--gold); opacity: 0.4; }
+.related-item-title { font-size: 0.82rem; font-family: 'Cormorant Garamond', serif; font-weight: 600; margin-top: 0.5rem; }
+.related-item-artist { font-size: 0.72rem; color: #999; }
+
+@media (max-width: 900px) {
+    .artwork-layout { grid-template-columns: 1fr; }
+    .artwork-main { position: relative; height: 60vw; top: 0; padding: 2rem; }
+    .artwork-sidebar { padding: 2rem 1.5rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="artwork-layout">
+    <div class="artwork-main">
+        <div class="artwork-image-frame">
+            {% if artwork.image and artwork.image.name != 'artworks/placeholder.jpg' %}
+            <img src="{{ artwork.image.url }}" alt="{{ artwork.title }}">
+            {% else %}
+            <div class="artwork-placeholder-large">{{ artwork.title|first }}</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="artwork-sidebar">
+        <p class="artwork-eyebrow">{{ artwork.get_medium_display }} · {{ artwork.year_created }}</p>
+        <h1 class="artwork-title">{{ artwork.title }}</h1>
+        <a href="{% url 'artist_detail' artwork.artist.pk %}" class="artwork-artist">by {{ artwork.artist.name }}</a>
+
+        <div class="artwork-meta-grid">
+            <div>
+                <div class="meta-item-label">Medium</div>
+                <div class="meta-item-value">{{ artwork.get_medium_display }}</div>
+            </div>
+            <div>
+                <div class="meta-item-label">Year</div>
+                <div class="meta-item-value">{{ artwork.year_created }}</div>
+            </div>
+            {% if artwork.dimensions %}
+            <div>
+                <div class="meta-item-label">Dimensions</div>
+                <div class="meta-item-value">{{ artwork.dimensions }}</div>
+            </div>
+            {% endif %}
+            <div>
+                <div class="meta-item-label">Views</div>
+                <div class="meta-item-value">{{ artwork.view_count }}</div>
+            </div>
+        </div>
+
+        {% if artwork.description %}
+        <p class="artwork-desc">{{ artwork.description }}</p>
+        {% endif %}
+
+        <!-- AI Analysis -->
+        <div class="ai-analysis-box">
+            <div class="ai-analysis-header">
+                <div class="ai-analysis-title">✦ AI Art Analysis</div>
+                <button class="btn-ai" onclick="getAIAnalysis({{ artwork.pk }})">Generate ✦</button>
+            </div>
+            <div id="ai-analysis-text">
+                <p id="ai-analysis-content" style="font-size:0.85rem;line-height:1.8;color:#ccc;"></p>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="artwork-actions">
+            {% if user.is_authenticated %}
+            <button class="like-btn {% if user_liked %}liked{% endif %}" id="like-btn" onclick="toggleLike({{ artwork.pk }})">
+                <span id="like-icon">{% if user_liked %}♥{% else %}♡{% endif %}</span>
+                <span id="like-count">{{ like_count }}</span>
+            </button>
+            {% else %}
+            <a href="{% url 'login' %}" class="like-btn">♡ {{ like_count }} Likes</a>
+            {% endif %}
+            <button class="btn btn-outline" style="flex:1;font-size:0.78rem;" onclick="shareArtwork()">Share ↗</button>
+        </div>
+
+        {% if artwork.is_for_sale and artwork.price %}
+        <div class="price-box">
+            <div class="meta-item-label">Available for Purchase</div>
+            <div class="price-value">₹{{ artwork.price|floatformat:0 }}</div>
+            <div style="font-size:0.75rem;color:var(--sage);margin-bottom:1rem;">✓ Free Insured Shipping &nbsp; ✓ Certificate of Authenticity</div>
+            {% if user.is_authenticated %}
+            <a href="{% url 'buy_now' artwork.pk %}" class="btn btn-gold" style="width:100%;display:block;text-align:center;margin-bottom:0.6rem;padding:0.9rem;font-size:0.9rem;">⚡ Buy Now</a>
+            <a href="{% url 'add_to_cart' artwork.pk %}" class="btn btn-outline" style="width:100%;display:block;text-align:center;padding:0.9rem;font-size:0.9rem;">🛒 Add to Cart</a>
+            {% else %}
+            <a href="{% url 'login' %}" class="btn btn-gold" style="width:100%;display:block;text-align:center;padding:0.9rem;font-size:0.9rem;">Login to Purchase</a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if artwork.exhibition %}
+        <div style="padding:1rem;background:var(--white);border-left:2px solid var(--sage);margin-bottom:2rem;">
+            <div class="meta-item-label">Part of Exhibition</div>
+            <a href="{% url 'exhibition_detail' artwork.exhibition.pk %}" style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--charcoal);text-decoration:none;">{{ artwork.exhibition.title }} →</a>
+        </div>
+        {% endif %}
+
+        <div class="divider"></div>
+
+        <!-- Comments -->
+        <div class="comments-section">
+            <p style="font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:#999;margin-bottom:1rem;">{{ artwork.comment_count }} Comments</p>
+
+            {% if user.is_authenticated %}
+            <div class="comment-form">
+                <textarea class="comment-textarea" id="comment-input" placeholder="Share your thoughts on this artwork..."></textarea>
+                <button class="btn btn-primary" style="margin-top:0.5rem;font-size:0.78rem;" onclick="submitComment({{ artwork.pk }})">Post Comment</button>
+            </div>
+            {% else %}
+            <p style="font-size:0.85rem;color:#999;margin-bottom:1.5rem;"><a href="{% url 'login' %}" style="color:var(--gold);">Sign in</a> to leave a comment.</p>
+            {% endif %}
+
+            <div id="comments-list">
+                {% for comment in comments %}
+                <div class="comment">
+                    <div class="comment-header">
+                        <span class="comment-username">{{ comment.user.username }}</span>
+                        <span class="comment-date">{{ comment.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <p class="comment-text">{{ comment.text }}</p>
+                </div>
+                {% empty %}
+                <p style="font-size:0.85rem;color:#bbb;">Be the first to comment on this artwork.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if related %}
+        <div class="divider"></div>
+        <p style="font-size:0.72rem;letter-spacing:0.15em;text-transform:uppercase;color:#999;margin-bottom:1rem;">Related Works</p>
+        <div class="related-grid">
+            {% for r in related %}
+            <a href="{% url 'artwork_detail' r.pk %}" class="related-item">
+                {% if r.image and r.image.name != 'artworks/placeholder.jpg' %}
+                <img src="{{ r.image.url }}" alt="{{ r.title }}">
+                {% else %}
+                <div class="related-placeholder">{{ r.title|first }}</div>
+                {% endif %}
+                <div class="related-item-title">{{ r.title }}</div>
+                <div class="related-item-artist">{{ r.artist.name }}</div>
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function getAIAnalysis(artworkId) {
+    const btn = event.target;
+    const textBox = document.getElementById('ai-analysis-text');
+    const content = document.getElementById('ai-analysis-content');
+    
+    btn.textContent = 'Analyzing...';
+    btn.disabled = true;
+    textBox.classList.add('show');
+    content.textContent = 'ARIA is crafting an analysis of this artwork...';
+
+    try {
+        const res = await fetch('/api/ai-describe/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+            body: JSON.stringify({ artwork_id: artworkId })
+        });
+        const data = await res.json();
+        content.textContent = data.description;
+    } catch {
+        content.textContent = 'Unable to generate analysis at this time.';
+    }
+
+    btn.textContent = 'Regenerate ✦';
+    btn.disabled = false;
+}
+
+async function toggleLike(artworkId) {
+    const btn = document.getElementById('like-btn');
+    try {
+        const res = await fetch(`/api/like/${artworkId}/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        });
+        const data = await res.json();
+        document.getElementById('like-icon').textContent = data.liked ? '♥' : '♡';
+        document.getElementById('like-count').textContent = data.count;
+        btn.classList.toggle('liked', data.liked);
+    } catch { console.error('Like failed'); }
+}
+
+async function submitComment(artworkId) {
+    const input = document.getElementById('comment-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    try {
+        const res = await fetch(`/api/comment/${artworkId}/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+            body: JSON.stringify({ text })
+        });
+        const data = await res.json();
+        if (data.success) {
+            const list = document.getElementById('comments-list');
+            const comment = document.createElement('div');
+            comment.className = 'comment';
+            comment.innerHTML = `
+                <div class="comment-header">
+                    <span class="comment-username">${data.username}</span>
+                    <span class="comment-date">${data.created_at}</span>
+                </div>
+                <p class="comment-text">${data.text}</p>
+            `;
+            list.prepend(comment);
+            input.value = '';
+        }
+    } catch { console.error('Comment failed'); }
+}
+
+function shareArtwork() {
+    if (navigator.share) {
+        navigator.share({ title: '{{ artwork.title }}', text: 'Check out this artwork on ArtExhibit!', url: window.location.href });
+    } else {
+        navigator.clipboard.writeText(window.location.href);
+        alert('Link copied to clipboard!');
+    }
+}
+</script>
+{% endblock %}

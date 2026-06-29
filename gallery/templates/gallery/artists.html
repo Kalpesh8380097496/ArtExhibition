@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Artists — ArtExhibit{% endblock %}
+{% block extra_css %}
+<style>
+.page-hero { background: var(--charcoal); padding: 5rem 4rem 3rem; text-align: center; color: var(--cream); }
+.page-hero h1 { font-family: 'Cormorant Garamond', serif; font-size: 4rem; font-weight: 300; }
+.page-hero p { color: #aaa; margin-top: 0.5rem; }
+.artists-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 2rem; padding: 4rem; }
+.artist-profile-card { background: var(--white); padding: 2.5rem 2rem; text-align: center; text-decoration: none; color: inherit; display: block; transition: transform 0.3s, box-shadow 0.3s; }
+.artist-profile-card:hover { transform: translateY(-6px); box-shadow: 0 16px 48px rgba(0,0,0,0.1); }
+.artist-profile-avatar { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, var(--mist), var(--gold-light)); margin: 0 auto 1.2rem; border: 3px solid var(--gold-light); overflow: hidden; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 3.5rem; color: var(--gold); transition: border-color 0.3s; }
+.artist-profile-card:hover .artist-profile-avatar { border-color: var(--gold); }
+.artist-profile-name { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; }
+.artist-profile-country { font-size: 0.8rem; color: #999; margin-top: 0.2rem; }
+.artist-profile-bio { font-size: 0.82rem; line-height: 1.6; color: #777; margin: 1rem 0; }
+.artist-profile-works { display: inline-block; background: var(--gold); color: var(--charcoal); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.3rem 0.8rem; }
+@media (max-width: 768px) { .artists-grid { padding: 2rem 1.5rem; } .page-hero { padding: 4rem 1.5rem 2rem; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-hero">
+    <p style="font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:0.8rem;">The Creators</p>
+    <h1>Our Artists</h1>
+    <p>{{ artists|length }} visionary artists from around the world</p>
+</div>
+<div class="artists-grid">
+    {% for artist in artists %}
+    <a href="{% url 'artist_detail' artist.pk %}" class="artist-profile-card">
+        <div class="artist-profile-avatar">
+            {% if artist.profile_image %}<img src="{{ artist.profile_image.url }}" style="width:100%;height:100%;object-fit:cover;">{% else %}{{ artist.name|first }}{% endif %}
+        </div>
+        <div class="artist-profile-name">{{ artist.name }}</div>
+        <div class="artist-profile-country">{{ artist.country }}</div>
+        <p class="artist-profile-bio">{{ artist.bio|truncatewords:20 }}</p>
+        <span class="artist-profile-works">{{ artist.work_count }} artwork{{ artist.work_count|pluralize }}</span>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}

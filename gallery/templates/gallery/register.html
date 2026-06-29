@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Join ArtExhibit{% endblock %}
+{% block extra_css %}
+<style>
+.auth-layout { display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 70px); }
+.auth-visual { background: var(--charcoal); display: flex; align-items: center; justify-content: center; padding: 4rem; position: relative; overflow: hidden; }
+.auth-form-area { background: var(--cream); display: flex; align-items: center; justify-content: center; padding: 4rem; }
+.auth-form-box { width: 100%; max-width: 420px; }
+.auth-title { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 300; margin-bottom: 0.5rem; }
+.grid-2-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 768px) { .auth-layout { grid-template-columns: 1fr; } .auth-visual { display: none; } .auth-form-area { padding: 3rem 1.5rem; } .grid-2-form { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="auth-layout">
+    <div class="auth-visual" style="flex-direction:column;text-align:center;gap:2rem;">
+        <div style="font-family:'Bebas Neue',cursive;font-size:4rem;letter-spacing:0.1em;color:var(--cream);position:relative;z-index:1;">Art<span style="color:var(--gold);">Exhibit</span></div>
+        <div style="position:relative;z-index:1;">
+            <p style="font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;">Join Our Community</p>
+            <p style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-style:italic;color:#aaa;line-height:1.6;max-width:300px;">"Every artist was first an amateur."</p>
+            <p style="font-size:0.72rem;color:#555;margin-top:0.8rem;">— Ralph Waldo Emerson</p>
+        </div>
+        <div style="position:relative;z-index:1;display:flex;gap:2rem;margin-top:1rem;">
+            <div style="text-align:center;"><div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;color:var(--cream);">Free</div><div style="font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:#666;">Forever</div></div>
+            <div style="text-align:center;"><div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;color:var(--cream);">AI</div><div style="font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:#666;">Powered</div></div>
+        </div>
+        <div style="position:absolute;inset:0;background:linear-gradient(135deg,#1A1A1A,#2C2416);"></div>
+    </div>
+    <div class="auth-form-area">
+        <div class="auth-form-box">
+            <h1 class="auth-title">Create Account</h1>
+            <p style="font-size:0.85rem;color:#999;margin-bottom:2rem;">Join thousands of art lovers worldwide</p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="grid-2-form">
+                    <div class="form-group"><label class="form-label">First Name</label><input type="text" name="first_name" class="form-input" placeholder="First name"></div>
+                    <div class="form-group"><label class="form-label">Last Name</label><input type="text" name="last_name" class="form-input" placeholder="Last name"></div>
+                </div>
+                <div class="form-group"><label class="form-label">Username</label><input type="text" name="username" class="form-input" required placeholder="Choose a username"></div>
+                <div class="form-group"><label class="form-label">Email</label><input type="email" name="email" class="form-input" required placeholder="your@email.com"></div>
+                <div class="form-group"><label class="form-label">Password</label><input type="password" name="password" class="form-input" required placeholder="At least 8 characters" minlength="8"></div>
+                <div class="form-group">
+            <label class="form-label">I am joining as</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-top:0.3rem;">
+              <label style="display:flex;align-items:center;gap:0.6rem;padding:0.8rem;border:1px solid var(--mist);cursor:pointer;background:var(--white);transition:border-color 0.3s;" id="role-user-label">
+                <input type="radio" name="role" value="user" checked onchange="highlightRole()"> <span style="font-size:0.85rem;">👤 Art Lover / Visitor</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:0.6rem;padding:0.8rem;border:1px solid var(--mist);cursor:pointer;background:var(--white);transition:border-color 0.3s;" id="role-artist-label">
+                <input type="radio" name="role" value="artist" onchange="highlightRole()"> <span style="font-size:0.85rem;">🎨 Artist / Creator</span>
+              </label>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-gold" style="width:100%;padding:1rem;font-size:0.9rem;">Create Free Account ✦</button>
+            </form>
+            <div style="text-align:center;margin-top:1.5rem;font-size:0.85rem;color:#999;">Already have an account? <a href="{% url 'login' %}" style="color:var(--gold);text-decoration:none;">Sign in</a></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}<script>function highlightRole(){document.getElementById('role-user-label').style.borderColor=document.querySelector('[value=user]').checked?'var(--gold)':'var(--mist)';document.getElementById('role-artist-label').style.borderColor=document.querySelector('[value=artist]').checked?'var(--gold)':'var(--mist)';}highlightRole();</script>{% endblock %}

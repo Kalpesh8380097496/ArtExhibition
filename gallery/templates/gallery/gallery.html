@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+
+{% block title %}Gallery — ArtExhibit{% endblock %}
+
+{% block extra_css %}
+<style>
+.gallery-hero {
+    background: var(--charcoal);
+    padding: 5rem 4rem 3rem;
+    text-align: center;
+}
+.gallery-hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    font-weight: 300;
+    color: var(--cream);
+    margin-bottom: 0.5rem;
+}
+.gallery-hero p { color: #aaa; font-size: 1rem; }
+
+.filters-bar {
+    background: var(--white);
+    border-bottom: 1px solid var(--mist);
+    padding: 1.2rem 4rem;
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 70px;
+    z-index: 100;
+}
+
+.filter-group { display: flex; gap: 0.5rem; align-items: center; }
+.filter-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: #999; }
+
+.filter-select {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--mist);
+    background: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    color: var(--charcoal);
+    cursor: pointer;
+    outline: none;
+}
+.filter-select:focus { border-color: var(--gold); }
+
+.search-bar {
+    flex: 1;
+    display: flex;
+    gap: 0;
+    max-width: 400px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--mist);
+    border-right: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    outline: none;
+    background: var(--cream);
+}
+.search-input:focus { border-color: var(--gold); }
+
+.search-btn {
+    padding: 0.5rem 1rem;
+    background: var(--charcoal);
+    color: var(--cream);
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.3s;
+}
+.search-btn:hover { background: var(--gold); color: var(--charcoal); }
+
+.results-count { font-size: 0.8rem; color: #999; margin-left: auto; }
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.2rem;
+    padding: 3rem 4rem;
+}
+
+.art-card {
+    background: var(--white);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.art-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+}
+
+.art-card-img-wrap {
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 4/3;
+}
+
+.art-card-img-wrap img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s;
+}
+
+.art-card:hover .art-card-img-wrap img { transform: scale(1.06); }
+
+.art-card-badge {
+    position: absolute;
+    top: 0.8rem; right: 0.8rem;
+    background: var(--gold);
+    color: var(--charcoal);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.6rem;
+}
+
+.art-card-body { padding: 1rem 1.2rem 1.2rem; }
+.art-card-medium { font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.3rem; }
+.art-card-title { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 600; color: var(--charcoal); }
+.art-card-artist { font-size: 0.82rem; color: #888; margin-top: 0.2rem; }
+
+.art-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--mist);
+    font-size: 0.78rem;
+    color: #999;
+}
+
+.art-price { color: var(--charcoal); font-weight: 500; }
+
+.art-card-placeholder {
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: linear-gradient(135deg, var(--mist) 0%, var(--gold-light) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 4rem;
+    color: rgba(201,168,76,0.3);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 6rem 2rem;
+    color: #999;
+    grid-column: 1 / -1;
+}
+.empty-state h3 { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; margin-bottom: 1rem; }
+
+@media (max-width: 768px) {
+    .filters-bar { padding: 1rem 1.5rem; }
+    .gallery-grid { padding: 2rem 1.5rem; }
+    .gallery-hero { padding: 4rem 1.5rem 2rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="gallery-hero">
+    <p style="font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:0.8rem;">The Collection</p>
+    <h1>Art Gallery</h1>
+    <p>{{ artworks|length }} artworks from {{ artworks|length }} creators worldwide</p>
+</div>
+
+<form method="get" action="{% url 'gallery' %}">
+<div class="filters-bar">
+    <div class="search-bar">
+        <input type="text" name="search" class="search-input" placeholder="Search artworks, artists..." value="{{ search }}">
+        <button type="submit" class="search-btn">⌕</button>
+    </div>
+
+    <div class="filter-group">
+        <span class="filter-label">Category</span>
+        <select name="category" class="filter-select" onchange="this.form.submit()">
+            <option value="">All</option>
+            {% for cat in categories %}
+            <option value="{{ cat.slug }}" {% if selected_category == cat.slug %}selected{% endif %}>{{ cat.icon }} {{ cat.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="filter-group">
+        <span class="filter-label">Medium</span>
+        <select name="medium" class="filter-select" onchange="this.form.submit()">
+            <option value="">All</option>
+            {% for val, label in medium_choices %}
+            <option value="{{ val }}" {% if selected_medium == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="filter-group">
+        <span class="filter-label">Sort</span>
+        <select name="sort" class="filter-select" onchange="this.form.submit()">
+            <option value="-created_at" {% if selected_sort == '-created_at' %}selected{% endif %}>Newest</option>
+            <option value="created_at" {% if selected_sort == 'created_at' %}selected{% endif %}>Oldest</option>
+            <option value="-view_count" {% if selected_sort == '-view_count' %}selected{% endif %}>Most Viewed</option>
+            <option value="title" {% if selected_sort == 'title' %}selected{% endif %}>A–Z</option>
+        </select>
+    </div>
+
+    <span class="results-count">{{ artworks|length }} results</span>
+</div>
+</form>
+
+<div class="gallery-grid">
+    {% for artwork in artworks %}
+    <a href="{% url 'artwork_detail' artwork.pk %}" class="art-card">
+        <div class="art-card-img-wrap">
+            {% if artwork.image and artwork.image.name != 'artworks/placeholder.jpg' %}
+            <img src="{{ artwork.image.url }}" alt="{{ artwork.title }}" loading="lazy">
+            {% else %}
+            <div class="art-card-placeholder">{{ artwork.title|first }}</div>
+            {% endif %}
+            {% if artwork.is_featured %}
+            <span class="art-card-badge">Featured</span>
+            {% endif %}
+        </div>
+        <div class="art-card-body">
+            <div class="art-card-medium">{{ artwork.get_medium_display }}</div>
+            <div class="art-card-title">{{ artwork.title }}</div>
+            <div class="art-card-artist">{{ artwork.artist.name }} · {{ artwork.year_created }}</div>
+            <div class="art-card-footer">
+                <span>{{ artwork.view_count }} views · {{ artwork.like_count }} ♥</span>
+                {% if artwork.is_for_sale and artwork.price %}
+                <span class="art-price">₹{{ artwork.price|floatformat:0 }}</span>
+                {% else %}
+                <span>Not for sale</span>
+                {% endif %}
+            </div>
+        </div>
+    </a>
+    {% empty %}
+    <div class="empty-state">
+        <h3>No artworks found</h3>
+        <p>Try adjusting your search or filters</p>
+        <a href="{% url 'gallery' %}" class="btn btn-outline" style="margin-top:1.5rem;">Clear Filters</a>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

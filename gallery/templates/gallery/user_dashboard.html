@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% block title %}My Dashboard — ArtExhibit{% endblock %}
+{% block extra_css %}
+<style>
+.dash-layout { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - 70px); }
+.dash-sidebar { background: var(--charcoal); padding: 2rem 0; position: sticky; top: 70px; height: calc(100vh - 70px); overflow-y: auto; }
+.dash-sidebar-logo { padding: 0 1.5rem 1.5rem; border-bottom: 1px solid #333; margin-bottom: 1rem; }
+.dash-nav-item { display: flex; align-items: center; gap: 0.8rem; padding: 0.75rem 1.5rem; color: #aaa; text-decoration: none; font-size: 0.85rem; transition: all 0.2s; cursor: pointer; border: none; background: none; width: 100%; text-align: left; }
+.dash-nav-item:hover, .dash-nav-item.active { background: rgba(201,168,76,0.1); color: var(--gold); border-left: 2px solid var(--gold); }
+.dash-main { background: var(--cream); padding: 2.5rem; }
+.dash-section { display: none; }
+.dash-section.active { display: block; }
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; margin-bottom: 2rem; }
+.stat-card { background: var(--white); padding: 1.2rem; border-left: 3px solid var(--gold); }
+.stat-num { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 300; line-height: 1; }
+.stat-label { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: #999; margin-top: 0.3rem; }
+.dash-card { background: var(--white); padding: 1.5rem; margin-bottom: 1.5rem; }
+.dash-card-title { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--mist); }
+.art-mini-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
+.art-mini-card { text-decoration: none; color: inherit; display: block; }
+.art-mini-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; background: var(--mist); }
+.art-mini-title { font-size: 0.82rem; font-family: 'Cormorant Garamond', serif; font-weight: 600; margin-top: 0.4rem; }
+.art-mini-artist { font-size: 0.72rem; color: #999; }
+.page-title { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; margin-bottom: 0.3rem; }
+.page-sub { font-size: 0.82rem; color: #999; margin-bottom: 2rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.ex-badge { display: inline-block; padding: 0.2rem 0.6rem; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; background: rgba(201,168,76,0.15); color: #A07820; margin-bottom: 0.3rem; }
+@media (max-width: 768px) { .dash-layout { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: repeat(2,1fr); } .form-row { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="dash-layout">
+  <div class="dash-sidebar">
+    <div class="dash-sidebar-logo">
+      <div style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--dusty-rose),var(--gold-light));display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--charcoal);margin-bottom:0.8rem;">{{ request.user.username|first|upper }}</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--cream);">{{ request.user.get_full_name|default:request.user.username }}</div>
+      <div style="font-size:0.7rem;color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;">✦ Art Lover</div>
+    </div>
+    <button class="dash-nav-item active" onclick="showSection('overview')"><span>📊</span> Overview</button>
+    <button class="dash-nav-item" onclick="showSection('liked')"><span>♥</span> Liked Artworks</button>
+    <button class="dash-nav-item" onclick="showSection('comments')"><span>💬</span> My Comments</button>
+    <button class="dash-nav-item" onclick="showSection('exhibitions')"><span>🏛</span> Exhibitions</button>
+    <button class="dash-nav-item" onclick="showSection('profile')"><span>👤</span> Edit Profile</button>
+    <div style="border-top:1px solid #333;margin:1rem 0;"></div>
+    <a href="{% url 'gallery' %}" class="dash-nav-item"><span>🖼</span> Browse Gallery</a>
+    <a href="{% url 'home' %}" class="dash-nav-item"><span>🌐</span> Home</a>
+    <a href="{% url 'logout' %}" class="dash-nav-item"><span>↩</span> Logout</a>
+  </div>
+
+  <div class="dash-main">
+
+    <!-- OVERVIEW -->
+    <div id="sec-overview" class="dash-section active">
+      <h1 class="page-title">Welcome back, {{ request.user.first_name|default:request.user.username }}!</h1>
+      <p class="page-sub">Your personal art journey at a glance.</p>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-num">{{ total_likes }}</div><div class="stat-label">Liked Artworks</div></div>
+        <div class="stat-card" style="border-color:#C4857A"><div class="stat-num">{{ total_comments }}</div><div class="stat-label">Comments Posted</div></div>
+        <div class="stat-card" style="border-color:#6B7C5C"><div class="stat-num">{{ active_exhibitions|length }}</div><div class="stat-label">Active Exhibitions</div></div>
+      </div>
+
+      <div class="dash-card">
+        <div class="dash-card-title">Your Liked Artworks</div>
+        <div class="art-mini-grid">
+          {% for art in liked_artworks|slice:":8" %}
+          <a href="{% url 'artwork_detail' art.pk %}" class="art-mini-card">
+            {% if art.image and art.image.name != 'artworks/placeholder.jpg' %}
+            <img src="{{ art.image.url }}" alt="{{ art.title }}" class="art-mini-img">
+            {% else %}
+            <div class="art-mini-img" style="display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--gold);background:linear-gradient(135deg,var(--mist),var(--gold-light));">{{ art.title|first }}</div>
+            {% endif %}
+            <div class="art-mini-title">{{ art.title }}</div>
+            <div class="art-mini-artist">{{ art.artist.name }}</div>
+          </a>
+          {% empty %}
+          <div style="grid-column:1/-1;text-align:center;padding:2rem;color:#bbb;">
+            <p style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;">You haven't liked any artworks yet.</p>
+            <a href="{% url 'gallery' %}" class="btn btn-gold" style="margin-top:1rem;display:inline-block;">Explore Gallery →</a>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="dash-card">
+        <div class="dash-card-title">Discover New Artworks</div>
+        <div class="art-mini-grid">
+          {% for art in recent_artworks %}
+          <a href="{% url 'artwork_detail' art.pk %}" class="art-mini-card">
+            {% if art.image and art.image.name != 'artworks/placeholder.jpg' %}
+            <img src="{{ art.image.url }}" alt="{{ art.title }}" class="art-mini-img">
+            {% else %}
+            <div class="art-mini-img" style="display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--gold);background:linear-gradient(135deg,var(--mist),var(--gold-light));">{{ art.title|first }}</div>
+            {% endif %}
+            <div class="art-mini-title">{{ art.title }}</div>
+            <div class="art-mini-artist">{{ art.artist.name }}</div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- LIKED -->
+    <div id="sec-liked" class="dash-section">
+      <h1 class="page-title">Liked Artworks</h1>
+      <p class="page-sub">{{ total_likes }} artworks you love</p>
+      <div class="art-mini-grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr));">
+        {% for art in liked_artworks %}
+        <a href="{% url 'artwork_detail' art.pk %}" class="art-mini-card">
+          {% if art.image and art.image.name != 'artworks/placeholder.jpg' %}
+          <img src="{{ art.image.url }}" alt="{{ art.title }}" class="art-mini-img">
+          {% else %}
+          <div class="art-mini-img" style="display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--gold);background:linear-gradient(135deg,var(--mist),var(--gold-light));">{{ art.title|first }}</div>
+          {% endif %}
+          <div class="art-mini-title">{{ art.title }}</div>
+          <div class="art-mini-artist">{{ art.artist.name }} · {{ art.get_medium_display }}</div>
+        </a>
+        {% empty %}
+        <div style="grid-column:1/-1;text-align:center;padding:3rem;color:#bbb;"><p>No liked artworks yet. <a href="{% url 'gallery' %}" style="color:var(--gold);">Explore the gallery →</a></p></div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- COMMENTS -->
+    <div id="sec-comments" class="dash-section">
+      <h1 class="page-title">My Comments</h1>
+      <p class="page-sub">{{ total_comments }} comments posted</p>
+      <div class="dash-card">
+        {% for comment in my_comments %}
+        <div style="padding:1rem;border-bottom:1px solid var(--mist);">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem;">
+            <a href="{% url 'artwork_detail' comment.artwork.pk %}" style="font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:600;color:var(--charcoal);text-decoration:none;">{{ comment.artwork.title }}</a>
+            <span style="font-size:0.75rem;color:#bbb;">{{ comment.created_at|date:"M d, Y" }}</span>
+          </div>
+          <p style="font-size:0.85rem;color:#555;line-height:1.6;">{{ comment.text }}</p>
+          <div style="font-size:0.75rem;color:#aaa;margin-top:0.3rem;">by {{ comment.artwork.artist.name }}</div>
+        </div>
+        {% empty %}
+        <p style="color:#bbb;text-align:center;padding:2rem;">No comments yet. Go leave some love on artworks!</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- EXHIBITIONS -->
+    <div id="sec-exhibitions" class="dash-section">
+      <h1 class="page-title">Active Exhibitions</h1>
+      <p class="page-sub">Currently showing exhibitions</p>
+      {% for ex in active_exhibitions %}
+      <div class="dash-card" style="border-left:3px solid var(--gold);">
+        <span class="ex-badge">{{ ex.get_status_display }}</span>
+        <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;margin-bottom:0.4rem;">{{ ex.title }}</h3>
+        <p style="font-size:0.82rem;color:#999;margin-bottom:0.8rem;">{{ ex.start_date|date:"M d" }} — {{ ex.end_date|date:"M d, Y" }} {% if ex.is_virtual %}· 🌐 Virtual{% endif %}</p>
+        <p style="font-size:0.88rem;color:#666;line-height:1.7;">{{ ex.description|truncatewords:30 }}</p>
+        <a href="{% url 'exhibition_detail' ex.pk %}" class="btn btn-outline" style="display:inline-block;margin-top:1rem;font-size:0.78rem;padding:0.5rem 1.2rem;">View Exhibition →</a>
+      </div>
+      {% empty %}
+      <div class="dash-card" style="text-align:center;color:#bbb;padding:3rem;"><p>No active exhibitions right now. <a href="{% url 'exhibitions' %}" style="color:var(--gold);">See all exhibitions →</a></p></div>
+      {% endfor %}
+    </div>
+
+    <!-- PROFILE -->
+    <div id="sec-profile" class="dash-section">
+      <h1 class="page-title">Edit Profile</h1>
+      <p class="page-sub">Update your account information</p>
+      <div class="dash-card">
+        <form method="post" action="{% url 'user_update_profile' %}">
+          {% csrf_token %}
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">First Name</label><input type="text" name="first_name" class="form-input" value="{{ request.user.first_name }}"></div>
+            <div class="form-group"><label class="form-label">Last Name</label><input type="text" name="last_name" class="form-input" value="{{ request.user.last_name }}"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Email</label><input type="email" name="email" class="form-input" value="{{ request.user.email }}"></div>
+          <div class="form-group"><label class="form-label">Username</label><input type="text" class="form-input" value="{{ request.user.username }}" disabled style="background:#eee;cursor:not-allowed;"></div>
+          <button type="submit" class="btn btn-primary" style="padding:0.9rem 2rem;">Save Changes</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function showSection(name) {
+    document.querySelectorAll('.dash-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.dash-nav-item').forEach(b => b.classList.remove('active'));
+    document.getElementById('sec-' + name).classList.add('active');
+    event.currentTarget.classList.add('active');
+}
+</script>
+{% endblock %}

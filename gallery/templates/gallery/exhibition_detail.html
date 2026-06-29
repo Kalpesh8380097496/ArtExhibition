@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}{{ exhibition.title }} — ArtExhibit{% endblock %}
+{% block content %}
+<div style="background:var(--charcoal);padding:5rem 4rem 3rem;text-align:center;color:var(--cream);">
+    <span style="display:inline-block;background:var(--gold);color:var(--charcoal);font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;padding:0.3rem 0.8rem;margin-bottom:1rem;">{{ exhibition.get_status_display }}</span>
+    <h1 style="font-family:'Cormorant Garamond',serif;font-size:3.5rem;font-weight:300;margin-bottom:1rem;">{{ exhibition.title }}</h1>
+    <p style="color:#aaa;font-size:0.9rem;">{{ exhibition.start_date|date:"M d, Y" }} — {{ exhibition.end_date|date:"M d, Y" }}{% if exhibition.is_virtual %} · Virtual Exhibition{% endif %}</p>
+    <p style="color:#888;max-width:600px;margin:1.5rem auto 0;line-height:1.8;font-size:0.95rem;">{{ exhibition.description }}</p>
+</div>
+<section class="section">
+    <div class="section-header">
+        <p class="section-eyebrow">In this Exhibition</p>
+        <h2 class="section-title">{{ artworks|length }} Artwork{{ artworks|length|pluralize }}</h2>
+    </div>
+    <div class="grid-3">
+        {% for artwork in artworks %}
+        <a href="{% url 'artwork_detail' artwork.pk %}" class="artwork-card" style="text-decoration:none;color:inherit;">
+            {% if artwork.image and artwork.image.name != 'artworks/placeholder.jpg' %}
+            <img src="{{ artwork.image.url }}" alt="{{ artwork.title }}" class="artwork-card-img">
+            {% else %}
+            <div class="artwork-card-img" style="display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:4rem;color:var(--gold);opacity:0.3;">{{ artwork.title|first }}</div>
+            {% endif %}
+            <div class="artwork-card-overlay"><div><p style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--cream);">{{ artwork.title }}</p><p style="font-size:0.8rem;color:#ccc;margin-top:0.2rem;">{{ artwork.artist.name }}</p></div></div>
+            <div class="artwork-card-info">
+                <div class="artwork-card-title">{{ artwork.title }}</div>
+                <div class="artwork-card-artist">{{ artwork.artist.name }}</div>
+                <div class="artwork-card-meta"><span>{{ artwork.get_medium_display }}</span><span>{{ artwork.year_created }}</span></div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

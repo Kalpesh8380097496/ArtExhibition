@@ -1,0 +1,650 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ArtExhibit — Where Art Meets Discovery{% endblock %}
+
+{% block extra_css %}
+<style>
+/* HERO */
+.hero {
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+    position: relative;
+}
+
+.hero-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 6rem 5rem 6rem 6rem;
+    position: relative;
+    z-index: 2;
+}
+
+.hero-eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.8s ease 0.2s both;
+}
+
+.hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3rem, 5.5vw, 6rem);
+    font-weight: 300;
+    line-height: 1.0;
+    color: var(--charcoal);
+    margin-bottom: 1.8rem;
+    animation: fadeUp 0.8s ease 0.4s both;
+}
+
+.hero-title em {
+    font-style: italic;
+    color: var(--gold);
+}
+
+.hero-subtitle {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #666;
+    max-width: 420px;
+    margin-bottom: 2.5rem;
+    animation: fadeUp 0.8s ease 0.6s both;
+}
+
+.hero-ctas {
+    display: flex;
+    gap: 1rem;
+    animation: fadeUp 0.8s ease 0.8s both;
+}
+
+.hero-stats {
+    display: flex;
+    gap: 3rem;
+    margin-top: 4rem;
+    animation: fadeUp 0.8s ease 1s both;
+}
+
+.hero-stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: var(--charcoal);
+    line-height: 1;
+}
+
+.hero-stat-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #999;
+    margin-top: 0.3rem;
+}
+
+.hero-right {
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    height: 100%;
+    gap: 4px;
+}
+
+.hero-grid-item {
+    background: var(--mist);
+    overflow: hidden;
+    position: relative;
+}
+
+.hero-grid-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 8s linear;
+}
+
+.hero-grid-item:hover img { transform: scale(1.1); }
+
+.hero-grid-item:nth-child(1) { grid-column: 1; grid-row: 1 / span 2; }
+
+.hero-grid-overlay {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 1.5rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    color: var(--cream);
+}
+
+.hero-grid-art-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+.hero-grid-artist { font-size: 0.72rem; color: var(--gold-light); margin-top: 0.2rem; }
+
+/* MARQUEE */
+.marquee-section {
+    background: var(--charcoal);
+    padding: 1rem 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.marquee-track {
+    display: inline-flex;
+    animation: marquee 25s linear infinite;
+    gap: 0;
+}
+
+.marquee-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 0 3rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    color: var(--cream);
+    letter-spacing: 0.05em;
+}
+
+.marquee-dot { color: var(--gold); font-size: 0.5rem; }
+
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* FEATURED */
+.featured-masonry {
+    columns: 3;
+    gap: 1.2rem;
+}
+
+.featured-item {
+    break-inside: avoid;
+    margin-bottom: 1.2rem;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.featured-item img {
+    width: 100%;
+    display: block;
+    transition: transform 0.5s;
+    background: var(--mist);
+}
+
+.featured-item:hover img { transform: scale(1.05); }
+
+.featured-item-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(26,26,26,0.9) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.4s;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    color: var(--cream);
+}
+
+.featured-item:hover .featured-item-overlay { opacity: 1; }
+
+/* AI SECTION */
+.ai-section {
+    background: var(--charcoal);
+    color: var(--cream);
+    padding: 6rem 4rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+}
+
+.ai-badge {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--charcoal);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.8rem;
+    margin-bottom: 1.5rem;
+}
+
+.ai-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 300;
+    line-height: 1.15;
+    margin-bottom: 1.5rem;
+}
+
+.ai-features {
+    list-style: none;
+    margin-top: 2rem;
+}
+
+.ai-features li {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 1.2rem;
+    font-size: 0.9rem;
+    color: #aaa;
+    line-height: 1.6;
+}
+
+.ai-feature-icon {
+    color: var(--gold);
+    font-size: 1rem;
+    margin-top: 0.1rem;
+    flex-shrink: 0;
+}
+
+.ai-recommender {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(201,168,76,0.3);
+    padding: 2rem;
+}
+
+.ai-recommender h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin-bottom: 1rem;
+    color: var(--gold);
+}
+
+#pref-input {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    margin-bottom: 1rem;
+    resize: none;
+    min-height: 80px;
+}
+
+#pref-input:focus { border-color: var(--gold); }
+
+#rec-results { margin-top: 1.5rem; }
+
+.rec-item {
+    padding: 0.8rem;
+    background: rgba(201,168,76,0.1);
+    border-left: 2px solid var(--gold);
+    margin-bottom: 0.8rem;
+    font-size: 0.85rem;
+    color: #ccc;
+}
+
+.rec-item strong { color: var(--cream); display: block; margin-bottom: 0.3rem; }
+
+/* EXHIBITIONS */
+.exhibition-card {
+    background: var(--white);
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 0;
+    transition: transform 0.3s;
+    text-decoration: none;
+    color: inherit;
+}
+
+.exhibition-card:hover { transform: translateX(6px); }
+
+.exhibition-card-date {
+    background: var(--charcoal);
+    color: var(--cream);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.exhibition-month {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+}
+
+.exhibition-day {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3rem;
+    font-weight: 300;
+    line-height: 1;
+    margin: 0.2rem 0;
+}
+
+.exhibition-status {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    margin-top: 0.5rem;
+}
+
+.status-active { background: rgba(107,124,92,0.3); color: #8BC34A; }
+.status-upcoming { background: rgba(201,168,76,0.2); color: var(--gold); }
+
+.exhibition-card-body { padding: 1.5rem 2rem; border: 1px solid var(--mist); border-left: none; }
+.exhibition-card-title { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; margin-bottom: 0.5rem; }
+.exhibition-card-desc { font-size: 0.85rem; color: #777; line-height: 1.7; }
+.exhibition-card-virtual { display: inline-block; margin-top: 0.8rem; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); }
+
+/* ARTISTS STRIP */
+.artists-strip { display: flex; gap: 1.5rem; overflow-x: auto; padding-bottom: 1rem; }
+.artists-strip::-webkit-scrollbar { height: 2px; }
+.artists-strip::-webkit-scrollbar-thumb { background: var(--gold); }
+
+.artist-card {
+    flex-shrink: 0;
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+    width: 160px;
+}
+
+.artist-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: var(--mist);
+    margin: 0 auto 0.8rem;
+    border: 2px solid var(--gold-light);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.5rem;
+    color: var(--gold);
+    transition: border-color 0.3s, transform 0.3s;
+}
+
+.artist-card:hover .artist-avatar { border-color: var(--gold); transform: scale(1.05); }
+.artist-name { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 600; }
+.artist-country { font-size: 0.75rem; color: #999; margin-top: 0.2rem; }
+.artist-works { font-size: 0.72rem; color: var(--gold); margin-top: 0.2rem; }
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; height: auto; }
+    .hero-left { padding: 4rem 2rem; }
+    .hero-right { height: 50vw; }
+    .ai-section { grid-template-columns: 1fr; gap: 2rem; padding: 4rem 2rem; }
+    .featured-masonry { columns: 2; }
+    .exhibition-card { grid-template-columns: 100px 1fr; }
+}
+
+@media (max-width: 600px) {
+    .featured-masonry { columns: 1; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-left">
+        <p class="hero-eyebrow">✦ Premier Online Art Exhibition</p>
+        <h1 class="hero-title">
+            Where Art<br>
+            <em>Speaks</em><br>
+            to the Soul
+        </h1>
+        <p class="hero-subtitle">Discover extraordinary artworks from emerging and established artists worldwide. Experience the future of art exhibition — curated by AI, loved by humans.</p>
+        <div class="hero-ctas">
+            <a href="{% url 'gallery' %}" class="btn btn-primary">Explore Gallery</a>
+            <a href="{% url 'exhibitions' %}" class="btn btn-outline">View Exhibitions</a>
+        </div>
+        <div class="hero-stats">
+            <div>
+                <div class="hero-stat-num">{{ total_artworks }}+</div>
+                <div class="hero-stat-label">Artworks</div>
+            </div>
+            <div>
+                <div class="hero-stat-num">{{ total_artists }}+</div>
+                <div class="hero-stat-label">Artists</div>
+            </div>
+            <div>
+                <div class="hero-stat-num">{{ total_exhibitions }}</div>
+                <div class="hero-stat-label">Exhibitions</div>
+            </div>
+        </div>
+    </div>
+    <div class="hero-right">
+        <div class="hero-grid">
+            {% for artwork in featured_artworks|slice:":3" %}
+            <div class="hero-grid-item">
+                {% if artwork.image %}
+                <img src="{{ artwork.image.url }}" alt="{{ artwork.title }}">
+                {% else %}
+                <div style="width:100%;height:100%;background:linear-gradient(135deg,#E8E4DC,#E8D5A3);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:#C9A84C;">{{ artwork.title|first }}</div>
+                {% endif %}
+                <div class="hero-grid-overlay">
+                    <div class="hero-grid-art-title">{{ artwork.title }}</div>
+                    <div class="hero-grid-artist">{{ artwork.artist.name }}</div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="hero-grid-item" style="background:linear-gradient(135deg,#E8E4DC,#E8D5A3);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;color:#C9A84C;font-size:1.5rem;grid-column:1;grid-row:1/span 2;">ArtExhibit</div>
+            <div class="hero-grid-item" style="background:linear-gradient(135deg,#C9A84C20,#E8E4DC);"></div>
+            <div class="hero-grid-item" style="background:linear-gradient(135deg,#2C2416,#3d3428);"></div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-section">
+    <div class="marquee-track">
+        <span class="marquee-item">Photography <span class="marquee-dot">●</span></span>
+        <span class="marquee-item">Oil Painting <span class="marquee-dot">●</span></span>
+        <span class="marquee-item">Digital Art <span class="marquee-dot">●</span></span>
+        <span class="marquee-item">Sculpture <span class="marquee-dot">●</span></span>
+        <span class="marquee-item">Watercolor <span class="marquee-dot">●</span></span>
+        <span class="marquee-item">Mixed Media <span class="marquee-dot">●</span></span>
+        <span class="marquee-item">Drawing <span class="marquee-dot">●</span></span>
+        <span class="marquee-item">Printmaking <span class="marquee-dot">●</span></span>
+        <span class="marquee-item">Contemporary <span class="marquee-dot">●</span></span>
+        <span class="marquee-item">Abstract <span class="marquee-dot">●</span></span>
+        <span class="marquee-item">Figurative <span class="marquee-dot">●</span></span>
+        <span class="marquee-item">Landscape <span class="marquee-dot">●</span></span>
+        <span class="marquee-item">Photography <span class="marquee-dot">●</span></span>
+        <span class="marquee-item">Oil Painting <span class="marquee-dot">●</span></span>
+        <span class="marquee-item">Digital Art <span class="marquee-dot">●</span></span>
+        <span class="marquee-item">Sculpture <span class="marquee-dot">●</span></span>
+        <span class="marquee-item">Watercolor <span class="marquee-dot">●</span></span>
+        <span class="marquee-item">Mixed Media <span class="marquee-dot">●</span></span>
+        <span class="marquee-item">Drawing <span class="marquee-dot">●</span></span>
+        <span class="marquee-item">Printmaking <span class="marquee-dot">●</span></span>
+        <span class="marquee-item">Contemporary <span class="marquee-dot">●</span></span>
+        <span class="marquee-item">Abstract <span class="marquee-dot">●</span></span>
+        <span class="marquee-item">Figurative <span class="marquee-dot">●</span></span>
+        <span class="marquee-item">Landscape <span class="marquee-dot">●</span></span>
+    </div>
+</div>
+
+<!-- FEATURED ARTWORKS -->
+<section class="section">
+    <div class="section-header">
+        <p class="section-eyebrow">Curated Selection</p>
+        <h2 class="section-title">Featured Works</h2>
+    </div>
+
+    <div class="featured-masonry">
+        {% for artwork in recent_artworks %}
+        <div class="featured-item" onclick="window.location='{% url 'artwork_detail' artwork.pk %}'">
+            {% if artwork.image and artwork.image.name != 'artworks/placeholder.jpg' %}
+            <img src="{{ artwork.image.url }}" alt="{{ artwork.title }}" loading="lazy">
+            {% else %}
+            <div style="width:100%;height:250px;background:linear-gradient(135deg,#E8E4DC,#E8D5A3);display:flex;align-items:center;justify-content:center;">
+                <span style="font-family:'Cormorant Garamond',serif;font-size:3rem;color:var(--gold);opacity:0.5;">{{ artwork.title|first }}</span>
+            </div>
+            {% endif %}
+            <div class="featured-item-overlay">
+                <p style="font-size:0.72rem;letter-spacing:0.1em;color:var(--gold-light);text-transform:uppercase;margin-bottom:0.4rem;">{{ artwork.get_medium_display }}</p>
+                <p style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;">{{ artwork.title }}</p>
+                <p style="font-size:0.8rem;color:#ccc;margin-top:0.2rem;">{{ artwork.artist.name }}</p>
+                {% if artwork.price and artwork.is_for_sale %}
+                <p style="font-size:0.85rem;color:var(--gold);margin-top:0.5rem;">₹{{ artwork.price|floatformat:0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div style="text-align:center;margin-top:3rem;">
+        <a href="{% url 'gallery' %}" class="btn btn-outline">View All Artworks</a>
+    </div>
+</section>
+
+<!-- AI SECTION -->
+<section class="ai-section">
+    <div>
+        <span class="ai-badge">✦ Powered by AI</span>
+        <h2 class="ai-title">Your Intelligent<br>Art Companion</h2>
+        <p style="color:#aaa;font-size:0.95rem;line-height:1.8;">ARIA — our AI art assistant — transforms how you discover and understand art. Get personalized recommendations, deep artwork analysis, and curatorial insights instantly.</p>
+        <ul class="ai-features">
+            <li><span class="ai-feature-icon">◈</span> AI-generated artwork descriptions and art critic analysis</li>
+            <li><span class="ai-feature-icon">◈</span> Personalized artwork recommendations based on your taste</li>
+            <li><span class="ai-feature-icon">◈</span> Conversational art guide — ask anything about art history</li>
+            <li><span class="ai-feature-icon">◈</span> Real-time chat support for gallery navigation</li>
+        </ul>
+    </div>
+    <div class="ai-recommender">
+        <h3>✦ Get Recommendations</h3>
+        <p style="color:#aaa;font-size:0.85rem;margin-bottom:1rem;">Tell ARIA what moves you and discover your perfect artworks.</p>
+        <textarea id="pref-input" placeholder="e.g., I love melancholic landscapes with muted earth tones, or bold geometric abstracts with strong colors..."></textarea>
+        <button class="btn btn-gold" onclick="getRecommendations()" style="width:100%">Discover My Art ✦</button>
+        <div id="rec-results"></div>
+    </div>
+</section>
+
+<!-- EXHIBITIONS -->
+{% if exhibitions %}
+<section class="section" style="background:var(--white);">
+    <div class="section-header">
+        <p class="section-eyebrow">Now Showing</p>
+        <h2 class="section-title">Active Exhibitions</h2>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:1rem;max-width:800px;margin:0 auto;">
+        {% for ex in exhibitions %}
+        <a href="{% url 'exhibition_detail' ex.pk %}" class="exhibition-card">
+            <div class="exhibition-card-date">
+                <div class="exhibition-month">{{ ex.start_date|date:"M" }}</div>
+                <div class="exhibition-day">{{ ex.start_date|date:"d" }}</div>
+                <span class="exhibition-status status-{{ ex.status }}">{{ ex.get_status_display }}</span>
+            </div>
+            <div class="exhibition-card-body">
+                <div class="exhibition-card-title">{{ ex.title }}</div>
+                <div class="exhibition-card-desc">{{ ex.description|truncatewords:25 }}</div>
+                {% if ex.is_virtual %}<span class="exhibition-card-virtual">🌐 Virtual Exhibition</span>{% endif %}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    <div style="text-align:center;margin-top:2.5rem;">
+        <a href="{% url 'exhibitions' %}" class="btn btn-primary">All Exhibitions</a>
+    </div>
+</section>
+{% endif %}
+
+<!-- ARTISTS -->
+<section class="section">
+    <div class="section-header">
+        <p class="section-eyebrow">The Creators</p>
+        <h2 class="section-title">Featured Artists</h2>
+    </div>
+    <div class="artists-strip">
+        {% for artist in artists %}
+        <a href="{% url 'artist_detail' artist.pk %}" class="artist-card">
+            <div class="artist-avatar">
+                {% if artist.profile_image %}
+                <img src="{{ artist.profile_image.url }}" alt="{{ artist.name }}" style="width:100%;height:100%;object-fit:cover;">
+                {% else %}
+                {{ artist.name|first }}
+                {% endif %}
+            </div>
+            <div class="artist-name">{{ artist.name }}</div>
+            <div class="artist-country">{{ artist.country }}</div>
+            <div class="artist-works">{{ artist.work_count }} work{{ artist.work_count|pluralize }}</div>
+        </a>
+        {% endfor %}
+    </div>
+    <div style="text-align:center;margin-top:2.5rem;">
+        <a href="{% url 'artists' %}" class="btn btn-outline">Meet All Artists</a>
+    </div>
+</section>
+
+<!-- NEWSLETTER / CTA -->
+<section style="background:var(--charcoal);padding:5rem 4rem;text-align:center;">
+    <p style="font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;">Join Our Community</p>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:300;color:var(--cream);margin-bottom:1rem;">Begin Your Art Journey</h2>
+    <p style="color:#aaa;margin-bottom:2.5rem;font-size:0.95rem;">Create a free account to like artworks, leave comments, and get personalized recommendations from ARIA.</p>
+    <a href="{% url 'register' %}" class="btn btn-gold" style="font-size:0.9rem;padding:1rem 3rem;">Create Free Account</a>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function getRecommendations() {
+    const prefs = document.getElementById('pref-input').value.trim();
+    if (!prefs) { alert('Please describe your art preferences first!'); return; }
+    
+    const btn = event.target;
+    btn.textContent = '✦ ARIA is thinking...';
+    btn.disabled = true;
+    
+    document.getElementById('rec-results').innerHTML = '<p style="color:#aaa;font-size:0.85rem;margin-top:1rem;">Finding your perfect artworks...</p>';
+    
+    try {
+        const res = await fetch('/api/ai-recommend/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+            body: JSON.stringify({ preferences: prefs })
+        });
+        const data = await res.json();
+        
+        let html = '';
+        if (data.recommendations && data.recommendations.length) {
+            data.recommendations.forEach(rec => {
+                html += `<div class="rec-item"><strong>Artwork #${rec.id}</strong>${rec.reason}</div>`;
+            });
+        } else if (data.message) {
+            html = `<div class="rec-item">${data.message}</div>`;
+        } else {
+            html = '<div class="rec-item">No specific recommendations found. Try <a href="/gallery/" style="color:var(--gold)">browsing the gallery</a>!</div>';
+        }
+        document.getElementById('rec-results').innerHTML = html;
+    } catch {
+        document.getElementById('rec-results').innerHTML = '<div class="rec-item" style="border-color:var(--rust)">Unable to get recommendations. Please try again.</div>';
+    }
+    
+    btn.textContent = 'Discover My Art ✦';
+    btn.disabled = false;
+}
+</script>
+{% endblock %}

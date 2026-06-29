@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Exhibitions — ArtExhibit{% endblock %}
+{% block extra_css %}
+<style>
+.page-hero { background: var(--charcoal); padding: 5rem 4rem 3rem; text-align: center; color: var(--cream); }
+.page-hero h1 { font-family: 'Cormorant Garamond', serif; font-size: 4rem; font-weight: 300; }
+.exhibitions-list { padding: 4rem; max-width: 900px; margin: 0 auto; }
+.ex-card { background: var(--white); margin-bottom: 1.5rem; display: grid; grid-template-columns: 180px 1fr; text-decoration: none; color: inherit; transition: transform 0.3s; }
+.ex-card:hover { transform: translateX(8px); }
+.ex-card-left { background: var(--charcoal); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1rem; text-align: center; }
+.ex-card-month { font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); }
+.ex-card-day { font-family: 'Cormorant Garamond', serif; font-size: 3.5rem; font-weight: 300; color: var(--cream); line-height: 1; }
+.status-badge { font-size: 0.65rem; padding: 0.2rem 0.6rem; margin-top: 0.5rem; }
+.status-active { background: rgba(139,195,74,0.2); color: #8BC34A; }
+.status-upcoming { background: rgba(201,168,76,0.2); color: var(--gold); }
+.status-ended { background: rgba(150,150,150,0.2); color: #999; }
+.ex-card-body { padding: 2rem; border: 1px solid var(--mist); border-left: none; }
+.ex-card-title { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 600; margin-bottom: 0.5rem; }
+.ex-card-dates { font-size: 0.78rem; color: var(--gold); margin-bottom: 0.8rem; letter-spacing: 0.05em; }
+.ex-card-desc { font-size: 0.88rem; line-height: 1.7; color: #777; }
+@media (max-width: 768px) { .exhibitions-list { padding: 2rem 1.5rem; } .page-hero { padding: 4rem 1.5rem 2rem; } .ex-card { grid-template-columns: 100px 1fr; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="page-hero">
+    <p style="font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:0.8rem;">On Show</p>
+    <h1>Exhibitions</h1>
+    <p style="color:#aaa;margin-top:0.5rem;">{{ exhibitions|length }} curated exhibitions</p>
+</div>
+<div class="exhibitions-list">
+    {% for ex in exhibitions %}
+    <a href="{% url 'exhibition_detail' ex.pk %}" class="ex-card">
+        <div class="ex-card-left">
+            <div class="ex-card-month">{{ ex.start_date|date:"M Y" }}</div>
+            <div class="ex-card-day">{{ ex.start_date|date:"d" }}</div>
+            <span class="status-badge status-{{ ex.status }}">{{ ex.get_status_display }}</span>
+        </div>
+        <div class="ex-card-body">
+            <div class="ex-card-title">{{ ex.title }}</div>
+            <div class="ex-card-dates">{{ ex.start_date|date:"M d, Y" }} — {{ ex.end_date|date:"M d, Y" }}{% if ex.is_virtual %} · 🌐 Virtual{% endif %}</div>
+            <div class="ex-card-desc">{{ ex.description|truncatewords:40 }}</div>
+        </div>
+    </a>
+    {% empty %}
+    <div style="text-align:center;padding:4rem;color:#999;"><h3 style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;">No exhibitions yet</h3></div>
+    {% endfor %}
+</div>
+{% endblock %}
